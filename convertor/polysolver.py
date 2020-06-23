@@ -3,6 +3,8 @@ import re
 import json
 import itertools
 
+import gridtypes
+
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('file', type=str, help='PolySolver file name')
 arg_parser.add_argument('-old', action='store_true', help='use this flag if the file is created in version 1.0')
@@ -57,6 +59,15 @@ def parse_coord(scanner, oriented=False):
     if oriented: return (x, y, z, w, ori)
     return (x, y, z, w)
 
+def convert_coord(coord, dim):
+    return coord[:dim] + (coord[3],)
+
+def compact_coord(coord):
+    return coord
+
+def compact_coord2(coord):
+    return coord[:dim]
+
 with open(args.file, 'r') as ff:
     print('{')
     if not args.old:
@@ -72,10 +83,14 @@ with open(args.file, 'r') as ff:
     if args.old and (grid == 'board' or grid == 'tile'):
         grid = 'square'
         scanner.back()
-    if not grid in ['square', 'cube']:
+    if not grid in gridtypes.grids:
         raise NotImplementedError('Grid type "{}" is not yet supported'.format(grid))
     print('  "grid": ' + json.dumps(grid) + ',')
-    dim = 3 if grid == 'cube' else 2
+    grid = gridtypes.grids[grid]
+    dim = grid['dimension']
+    if len(grid['orbits']) == 1:
+        compact_coord = compact_coord2
+    print('  "dimension": ' + str(dim) + ',')
     
     fun = scanner.next()
     board = {}
@@ -91,14 +106,17 @@ with open(args.file, 'r') as ff:
                 fun = scanner.next()
             if fun != ')':
                 raise SyntaxError('Missing ) at end of board')
-            xs,ys,zs,_ = coords[0]
+            xs,ys,zs,ws = coords[0]
             board['size'] = [xs+1,ys+1,zs+1][:dim]
-            board['coords'] = []
-            voids = set(coords[1:])
-            for xyzw in itertools.product(
-                    range(xs+1), range(ys+1), range(zs+1), range(1)):
-                if xyzw not in voids:
-                    board['coords'].append(xyzw[:dim])
+            cells = set(itertools.product(
+                    range(xs+1), range(ys+1), range(zs+1), range(ws+1)))
+            for xyzw in coords[1:]:
+                if xyzw in cells:
+                    cells.remove(xyzw)
+                else:
+                    cells.add(xyzw)
+            board['coords'] = [convert_coord(c, dim) for c in cells]
+            board['coords'].sort()
         elif fun == 'tile':
             shape = {}
             fun = scanner.next()
@@ -130,7 +148,7 @@ with open(args.file, 'r') as ff:
                     morph.append([])
                     fun = scanner.next()
                 if fun == '(':
-                    morph[-1].append(parse_coord(scanner))
+                    morph[-1].append(convert_coord(parse_coord(scanner), dim))
                     fun = scanner.next()
             if fun != ')':
                 raise SyntaxError('Missing ) at end of tile')
@@ -147,7 +165,7 @@ with open(args.file, 'r') as ff:
     
     print('  "board": {')
     print('    "size": %s,' % board['size'])
-    print('    "coords": %s' % json.dumps(board['coords']))
+    print('    "coords": %s' % json.dumps([compact_coord(c) for c in board['coords']]))
     print('  },')
     print('  "shapes": [')
     i = 0
@@ -163,7 +181,7 @@ with open(args.file, 'r') as ff:
         for mo in sh['morphs']:
             j -= 1
             print('        {"coords": %s}%s' % (
-                json.dumps([c[:dim] for c in mo]),
+                json.dumps([compact_coord(c) for c in mo]),
                 '' if j == 0 else ','
             ))
         print('      ]')
