@@ -1,0 +1,23 @@
+/**
+ * Parse command lines, and show help/version/usage info.
+ */
+#pragma once
+#ifndef ARGUMENT_PARSER_HPP
+#define ARGUMENT_PARSER_HPP
+#include <string>
+#include <vector>
+
+class CmdArgs {
+public:
+  std::string filename;
+  bool help;
+  bool ver;
+  
+  void setDefault(void);
+  bool parseCmdLine(int argc, char *argv[]);
+  void showHelp(void);
+  void showVersion(void);
+  void showUsage(std::string name);
+};
+
+#endif
