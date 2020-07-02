@@ -17,9 +17,9 @@ inline bool operator==(Coord a, Coord b) {
 }
 
 inline bool operator<(Coord a, Coord b) {
-  return a.x < b.x || a.x == b.x && (
-    a.y < b.y || a.y == b.y && (
-    a.z < b.z || a.z == b.z && a.w < b.w
+  return a.w < b.w || a.w == b.w && (
+    a.z < b.z || a.z == b.z && (
+    a.y < b.y || a.y == b.y && a.x < b.x
   ));
 }
 
