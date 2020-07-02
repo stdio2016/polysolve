@@ -101,9 +101,10 @@ void from_json(const json &j, Coord &coord) {
     throw std::runtime_error("Coord must be an integer array.");
   }
   int dim = 0;
-  while (j[dim].is_number()) {
+  while (dim < j.size() && j[dim].is_number()) {
     dim += 1;
   }
+  coord = Coord{0, 0, 0, 0};
   if (dim > 0) coord.x = j[0].get<int>();
   if (dim > 1) coord.y = j[1].get<int>();
   if (dim > 2) coord.z = j[2].get<int>();
