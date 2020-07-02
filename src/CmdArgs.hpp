@@ -9,9 +9,10 @@
 
 class CmdArgs {
 public:
-  std::string filename;
+  std::vector<std::string> filenames;
   bool help;
   bool ver;
+  int info;
   
   void setDefault(void);
   bool parseCmdLine(int argc, char *argv[]);

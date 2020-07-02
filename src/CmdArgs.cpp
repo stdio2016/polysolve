@@ -3,9 +3,9 @@
 #include <iostream>
 
 void CmdArgs::setDefault(void) {
-  filename = std::string();
   help = false;
   ver = false;
+  info = false;
 }
 
 bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
@@ -18,11 +18,14 @@ bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
       else if (strcmp(argv[i], "--version") == 0) {
         ver = true;
       }
+      else if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--info") == 0) {
+        info = true;
+      }
       else if (strcmp(argv[i], "--") == 0) {
         // this is not a command line option
         if (i+1 < argc) {
           i += 1;
-          filename = argv[i];
+          filenames.push_back(argv[i]);
         }
       }
       else {
@@ -31,23 +34,22 @@ bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
       }
     }
     else {
-      filename = argv[i];
+      filenames.push_back(argv[i]);
     }
   }
   return true;
 }
 
 void CmdArgs::showHelp(void) {
-  std::cout << "TODO" << std::endl;
+  showUsage("");
 }
 
 void CmdArgs::showVersion(void) {
-  std::cout << "blocksolve Version 0.0" << std::endl;
+  std::cout << "polysolve Version 0.0" << std::endl;
 }
 
 void CmdArgs::showUsage(std::string name) {
   if (name.empty()) name = "./polysolve";
-  std::cerr << "Usage: " << name << " [options]" << " puzzlefile"
+  std::cout << "Usage: " << name << " [options]" << " puzzlefile"
             << std::endl;
-  std::cerr << "Get more help with --help option." << std::endl;
 }
