@@ -100,7 +100,7 @@ def rotate(grid, coord, ori):
             tile = how[0]
             coord = new_coord
     if ori == 1:
-        how = grid['reflection'][i]
+        how = grid['reflection']
         how = how[tile]
         new_coord = []
         for j in range(dim):
@@ -115,7 +115,7 @@ def rotate(grid, coord, ori):
     return coord
 
 def rotate_all(grid, coords, ori):
-    out = [tuple(rotate(grid, c, ori)) for c in coord]
+    out = [tuple(rotate(grid, c, ori)) for c in coords]
     out.sort()
     return out
 

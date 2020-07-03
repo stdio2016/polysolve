@@ -59,6 +59,25 @@ def parse_coord(scanner, oriented=False):
     if oriented: return (x, y, z, w, ori)
     return (x, y, z, w)
 
+def parse_solution(scanner, shapes, shapeId, which='solution'):
+    nxt = scanner.next()
+    if nxt != '(': raise SyntaxError('Missing ( at ' + which)
+    nxt = scanner.next()
+    ans = []
+    while nxt != ')':
+        id = int(nxt)
+        id = shapeId[id]
+        nxt = scanner.next()
+        if nxt != '(': raise SyntaxError('Missing ( at coord')
+        coordori = parse_coord(scanner, oriented=True)
+        coord = coordori[:-1]
+        ori = coordori[-1]
+        shape = shapes[id-1]
+        obj = [id, coord, *shape['morphId'][ori]]
+        nxt = scanner.next()
+        ans.append(obj)
+    return ans
+
 def convert_coord(coord, dim, tileN=1):
     return (coord[3],) + coord[:dim] if tileN > 1 else coord[:dim]
 
@@ -162,7 +181,7 @@ with open(args.file, 'r') as ff:
                 scanner.back()
             shapes.append(shape)
         fun = scanner.next()
-    
+        
     print('  "board": {')
     print('    "size": %s,' % board['size'])
     print('    "coords": %s' % json.dumps([compact_coord(c) for c in board['coords']]))
@@ -187,5 +206,77 @@ with open(args.file, 'r') as ff:
         print('      ]')
         print('    }'+('' if i==len(shapes) else ','))
     print('  ],')
-    print('  "placements": []')
+
+    # build shape id mapping for place/solution
+    shapeId = [0]
+    for i, s in enumerate(shapes):
+        for _i in range(s['amount']['max']):
+            shapeId.append(i+1)
+    # build orient id mapping for place/solution
+    oriCount = gridtypes.total_rotations(grid)
+    for s in shapes:
+        mm = {}
+        morphId = []
+        oriId = 0
+        if s['mobility'] == 'translate':
+            myOriCount = 1
+        elif s['mobility'] == 'rotate':
+            myOriCount = oriCount
+        else:
+            myOriCount = oriCount * 2
+        for i, m in enumerate(s['morphs']):
+            for ori in range(myOriCount):
+                rotated = tuple(gridtypes.rotate_all(grid, m, ori))
+                if rotated not in mm:
+                    oriId += 1
+                    mm[rotated] = oriId
+                    morphId.append((i+1, ori))
+        s['morphId'] = morphId
+
+    # place
+    placement = []
+    if fun == 'place':
+        placement0 = parse_solution(scanner, shapes, shapeId, which='place')
+        for pla in placement0:
+            id, pos, morph, ori = pla
+            pos = compact_coord(convert_coord(pos, dim, tileN))
+            placement.append({'id':id, 'pos':pos, 'morph':morph, 'ori':ori})
+        fun = scanner.next()
+    print('  "placement": [')
+    for i, p in enumerate(placement):
+        print('    ' + json.dumps(p) + (',' if i < len(placement)-1 else ''))
+    print('  ],')
+
+    # mode
+    mode = ''
+    if fun == 'mode':
+        mode = scanner.next()
+        fun = scanner.next()
+    print('  "mode": %s,' % (json.dumps(mode)))
+
+    # solution
+    solutions = []
+    while fun == 'solution':
+        sol = parse_solution(scanner, shapes, shapeId)
+        for pla in sol:
+            pla[1] = compact_coord(convert_coord(pla[1], dim, tileN))
+        solutions.append(sol)
+        fun = scanner.next()
+    print('  "solutions": [')
+    for i, p in enumerate(solutions):
+        print('    ' + json.dumps(p) + (',' if i < len(solutions)-1 else ''))
+    print('  ],')
+    
+    # notes
+    notes = ""
+    if fun == 'notes':
+        notes = scanner.next()
+        # decode notes
+        txt = []
+        for i in range(len(notes) // 2):
+            lo = (ord(notes[i*2+1])-1) & 15
+            hi = (ord(notes[i*2])-1) & 15
+            txt.append(chr(hi*16 + lo))
+        notes = "".join(txt)
+    print('  "notes": %s' % (json.dumps(notes)))
     print('}')
