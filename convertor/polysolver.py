@@ -59,8 +59,8 @@ def parse_coord(scanner, oriented=False):
     if oriented: return (x, y, z, w, ori)
     return (x, y, z, w)
 
-def convert_coord(coord, dim):
-    return coord[:dim] + (coord[3],)
+def convert_coord(coord, dim, tileN=1):
+    return (coord[3],) + coord[:dim] if tileN > 1 else coord[:dim]
 
 def compact_coord(coord):
     return coord
@@ -80,7 +80,7 @@ with open(args.file, 'r') as ff:
     scanner = Tokenizer(text)
 
     grid = scanner.next()
-    if args.old and (grid == 'board' or grid == 'tile'):
+    if grid == 'board' or grid == 'tile':
         grid = 'square'
         scanner.back()
     if not grid in gridtypes.grids:
@@ -88,9 +88,9 @@ with open(args.file, 'r') as ff:
     print('  "grid": ' + json.dumps(grid) + ',')
     grid = gridtypes.grids[grid]
     dim = grid['dimension']
+    tileN = len(grid['orbits'])
     if len(grid['orbits']) == 1:
         compact_coord = compact_coord2
-    print('  "dimension": ' + str(dim) + ',')
     
     fun = scanner.next()
     board = {}
@@ -115,7 +115,7 @@ with open(args.file, 'r') as ff:
                     cells.remove(xyzw)
                 else:
                     cells.add(xyzw)
-            board['coords'] = [convert_coord(c, dim) for c in cells]
+            board['coords'] = [convert_coord(c, dim, tileN) for c in cells]
             board['coords'].sort()
         elif fun == 'tile':
             shape = {}
@@ -148,7 +148,7 @@ with open(args.file, 'r') as ff:
                     morph.append([])
                     fun = scanner.next()
                 if fun == '(':
-                    morph[-1].append(convert_coord(parse_coord(scanner), dim))
+                    morph[-1].append(convert_coord(parse_coord(scanner), dim, tileN))
                     fun = scanner.next()
             if fun != ')':
                 raise SyntaxError('Missing ) at end of tile')

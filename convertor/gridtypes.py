@@ -54,6 +54,24 @@ grids = {
         'reflection': [
             [0, [0, 0, 1], [0, 1, 0]]
         ]
+    },
+    'tan': {
+        'dimension': 2,
+        'orbits': [0, 0, 0, 0],
+        'rotation': [
+            {'order': 4, 'transform': [
+                [1, [0, 0, 1], [0, -1, 0]],
+                [2, [0, 0, 1], [0, -1, 0]],
+                [3, [0, 0, 1], [0, -1, 0]],
+                [0, [0, 0, 1], [0, -1, 0]]
+            ]}
+        ],
+        'reflection': [
+            [2, [0, -1, 0], [0, 0, 1]],
+            [1, [0, -1, 0], [0, 0, 1]],
+            [0, [0, -1, 0], [0, 0, 1]],
+            [3, [0, -1, 0], [0, 0, 1]]
+        ]
     }
 }
 
@@ -61,6 +79,10 @@ def rotate(grid, coord, ori):
     dim = grid['dimension']
     orbits = len(grid['orbits'])
     steps = []
+    if len(grid['orbits']) > 1:
+        tile, *coord = coord
+    else:
+        tile = 0
     for r in grid['rotation']:
         order = r['order']
         steps.append(ori % order)
@@ -68,27 +90,34 @@ def rotate(grid, coord, ori):
     for i in range(len(steps)-1, -1, -1):
         for t in range(steps[i]):
             how = grid['rotation'][i]['transform']
-            how = how[coord[dim]]
+            how = how[tile]
             new_coord = []
             for j in range(dim):
                 x = how[j+1][0]
                 for k in range(dim):
                     x += how[j+1][k+1] * coord[k]
                 new_coord.append(x)
-            new_coord.append(how[0])
+            tile = how[0]
             coord = new_coord
     if ori == 1:
         how = grid['reflection'][i]
-        how = how[coord[dim]]
+        how = how[tile]
         new_coord = []
         for j in range(dim):
             x = how[j+1][0]
             for k in range(dim):
                 x += how[j+1][k+1] * coord[k]
             new_coord.append(x)
-        new_coord.append(how[0])
+        tile = how[0]
         coord = new_coord
+    if len(grid['orbits']) > 1:
+        return [tile,] + coord
     return coord
+
+def rotate_all(grid, coords, ori):
+    out = [tuple(rotate(grid, c, ori)) for c in coord]
+    out.sort()
+    return out
 
 def total_rotations(grid):
     total = 1

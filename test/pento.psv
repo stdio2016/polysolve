@@ -1,4 +1,4 @@
-
+Fill 6x10 rectangle with pentominoes
 Square
 Board ( (9,5))
 # 12 pieces
@@ -14,3 +14,7 @@ tile flip((0,0)(1,0)(1,1)(1,2)(2,2))
 tile flip((0,0)(1,0)(1,1)(1,2)(2,0))
 tile flip((0,1)(1,0)(1,1)(1,2)(2,0))
 tile flip((0,1)(1,0)(1,1)(1,2)(2,1))
+mode FillAll
+# 1 solutions
+solution (1 (9,1|1), 2 (6,0|4), 3 (5,1|6), 4 (1,0|0), 5 (6,4|2), 6 (4,3|3), 7 (0,3|2), 8 (3,0|3), 9 (0,0|3), 10 (6,2|3), 11 (0,2|4), 12 (2,3|0))
+notes fegfhdhecagnhjcagggphcgngbhecagdgpgohggfhchegphccoakeigfgmgmgpcahhgphcgmgecadkcncj
