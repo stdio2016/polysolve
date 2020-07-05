@@ -15,6 +15,10 @@ void from_json(const json &j, Puzzle &puzzle) {
     throw std::runtime_error("Puzzle file must be a JSON of object.");
   }
   std::string grid = j.at("grid").get<std::string>();
+  puzzle.grid = GridType::fromName(grid);
+  if (!puzzle.grid) {
+    throw std::runtime_error("Undefined or unimplemented grid: " + grid);
+  }
   puzzle.board = j.at("board").get<std::vector<Coord> >();
 }
 

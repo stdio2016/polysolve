@@ -7,11 +7,13 @@
 #include <vector>
 #include "Coord.hpp"
 #include "Polyomino.hpp"
+#include "GridType.hpp"
 
 class Puzzle {
 public:
   std::vector<Coord> board;
   std::vector<Polyomino> polyominoes;
+  GridType *grid;
 };
 
 #endif

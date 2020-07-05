@@ -19,14 +19,14 @@ grids = {
                 [0, [0, 0, 1, 0], [0, -1, 0, 0], [0, 0, 0, 1]]
             ]},
             {'order': 2, 'transform': [
-                [0, [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]
+                [0, [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, -1]]
             ]},
             {'order': 3, 'transform': [
                 [0, [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]]
             ]}
         ],
         'reflection': [
-            [0, [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+            [0, [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, -1]]
         ]
     },
     'triangle': {
@@ -87,6 +87,17 @@ def rotate(grid, coord, ori):
         order = r['order']
         steps.append(ori % order)
         ori = ori // order
+    if ori == 1:
+        how = grid['reflection']
+        how = how[tile]
+        new_coord = []
+        for j in range(dim):
+            x = how[j+1][0]
+            for k in range(dim):
+                x += how[j+1][k+1] * coord[k]
+            new_coord.append(x)
+        tile = how[0]
+        coord = new_coord
     for i in range(len(steps)-1, -1, -1):
         for t in range(steps[i]):
             how = grid['rotation'][i]['transform']
@@ -99,17 +110,6 @@ def rotate(grid, coord, ori):
                 new_coord.append(x)
             tile = how[0]
             coord = new_coord
-    if ori == 1:
-        how = grid['reflection']
-        how = how[tile]
-        new_coord = []
-        for j in range(dim):
-            x = how[j+1][0]
-            for k in range(dim):
-                x += how[j+1][k+1] * coord[k]
-            new_coord.append(x)
-        tile = how[0]
-        coord = new_coord
     if len(grid['orbits']) > 1:
         return [tile,] + coord
     return coord
