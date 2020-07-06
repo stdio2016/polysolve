@@ -18,6 +18,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     std::cerr << x.what() << std::endl;
     return 1;
   }
+  std::cout << "Showing file " << filename << "\n";
   int i = 0;
   for (Polyomino po : puzzle.polyominoes) {
     i += 1;
@@ -27,10 +28,10 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
       for (Coord c : sh.coords) {
         std::cout << "("<<c.x<<","<<c.y<<","<<c.z<<")";
       }
-      std::cout << '\n';
+      std::cout <<" morph="<<sh.morph<<" orient="<<sh.orient << '\n';
     }
-    std::cout << '\n';
   }
+  std::cout << '\n';
   return 0;
 }
 

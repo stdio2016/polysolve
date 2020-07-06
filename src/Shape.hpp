@@ -10,7 +10,10 @@
 class Shape {
 public:
   std::vector<Coord> coords;
+  int morph;
+  int orient;
   
+  explicit Shape(int morph=0, int orient=0): morph(morph), orient(orient) {}
   void normalize(int maxTile);
 };
 

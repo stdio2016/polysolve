@@ -9,18 +9,21 @@ void Polyomino::generateTransforms(const GridType *const grid) {
     rots = 1;
   }
   else if (mobility == ROTATE) {
-    rots = grid->rotateCount;
+    rots = grid->rotateCount();
   }
   else if (mobility == MIRROR) {
-    rots = grid->rotateCount * (grid->canReflect ? 2 : 1);
+    rots = grid->rotateCount() * (grid->canReflect() ? 2 : 1);
   }
-  for (Shape sh : morphs) {
+  for (auto i = 0; i < morphs.size(); i++) {
+    Shape sh = morphs[i];
+    sh.morph = i;
     for (int orient = 0; orient < rots; orient++) {
       Shape gen = sh;
+      gen.orient = orient;
       for (Coord &c : gen.coords) {
         c = grid->rotate(c, orient);
       }
-      gen.normalize(grid->orbit.size());
+      gen.normalize(grid->orbit().size());
       std::sort(gen.coords.begin(), gen.coords.end());
       if (generated.count(gen) == 0) {
         transforms.push_back(gen);

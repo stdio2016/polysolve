@@ -10,6 +10,14 @@
 
 // base class of all grids
 class GridType {
+private:
+  // some information about the grid
+  std::string m_name;
+  int m_dimension;
+  int m_rotateCount;
+  int m_canReflect;
+  std::vector<int> m_orbit;
+
 public:
   // factory of all GridTypes
   static GridType *fromName(std::string name);
@@ -18,22 +26,22 @@ public:
   // actually it can get reflection, if i >= rotateCount
   virtual Coord rotate(Coord coord, int i) const = 0;
 
-  // some information about the grid
-  std::string name;
-  int dimension;
-  int rotateCount;
-  int canReflect;
-  std::vector<int> orbit;
+  // getter for some information about the grid
+  inline std::string name() const { return m_name; }
+  inline int dimension() const { return m_dimension; }
+  inline int rotateCount() const { return m_rotateCount; }
+  inline int canReflect() const { return m_canReflect; }
+  inline const std::vector<int>& orbit() const { return m_orbit; }
 
 protected:
   // constructor for subclasses
   GridType(std::string name, int dimension, int rotateCount, bool canReflect,
       std::vector<int> orbit):
-    name(name),
-    dimension(dimension),
-    rotateCount(rotateCount),
-    canReflect(canReflect),
-    orbit(orbit) {}
+    m_name(name),
+    m_dimension(dimension),
+    m_rotateCount(rotateCount),
+    m_canReflect(canReflect),
+    m_orbit(orbit) {}
 };
 
 class GridSquare : public GridType {
