@@ -13,10 +13,23 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     puzzle = reader.read(puzzlefile);
   }
   catch (std::exception& x) {
-    std::cerr << "Error: Cannot parse puzzle file " << filename << "."
+    std::cerr << "Error: Cannot parse puzzle file " << filename << ". Reason:"
               << std::endl;
     std::cerr << x.what() << std::endl;
     return 1;
+  }
+  int i = 0;
+  for (Polyomino po : puzzle.polyominoes) {
+    i += 1;
+    po.generateTransforms(puzzle.grid);
+    std::cout << "polyomino #" << i << '\n';
+    for (Shape sh : po.transforms) {
+      for (Coord c : sh.coords) {
+        std::cout << "("<<c.x<<","<<c.y<<","<<c.z<<")";
+      }
+      std::cout << '\n';
+    }
+    std::cout << '\n';
   }
   return 0;
 }

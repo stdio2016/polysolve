@@ -19,7 +19,16 @@ void from_json(const json &j, Puzzle &puzzle) {
   if (!puzzle.grid) {
     throw std::runtime_error("Undefined or unimplemented grid: " + grid);
   }
-  puzzle.board = j.at("board").get<std::vector<Coord> >();
+  if (!j.contains("board")) {
+    throw std::runtime_error("Puzzle must have a board.");
+  }
+  puzzle.board = j.at("board").get<Shape>();
+  if (!j.contains("shapes") || !j.at("shapes").is_array()) {
+    throw std::runtime_error("Puzzle must have one or more shapes.");
+  }
+  for (json sh : j.at("shapes")) {
+    puzzle.polyominoes.push_back(sh.get<Polyomino>());
+  }
 }
 
 void readTile1D(const json &j, std::vector<Coord> &coord, int y, int z, int w) {
@@ -61,12 +70,13 @@ void readTile4D(const json &j, std::vector<Coord> &coord) {
   }
 }
 
-void from_json(const json &j, std::vector<Coord> &coord) {
+void from_json(const json &j, Shape &shape) {
   const char *shapeError = "Shape must be an object with either array of coords or multidimensional array of tiles";
   if (!j.is_object()) {
     throw std::runtime_error(shapeError);
   }
   int finish = 0;
+  std::vector<Coord> &coord = shape.coords;
   if (j.contains("tiles")) {
     if (!j["tiles"].is_array()) {
       throw std::runtime_error(shapeError);
@@ -113,4 +123,42 @@ void from_json(const json &j, Coord &coord) {
   if (dim > 1) coord.y = j[1].get<int>();
   if (dim > 2) coord.z = j[2].get<int>();
   if (dim > 3) coord.w = j[3].get<int>();
+}
+
+void from_json(const json &j, Polyomino &poly) {
+  if (!j.is_object()) {
+    throw std::runtime_error("Polyomino must be an object.");
+  }
+  poly.minAmount = poly.maxAmount = 1;
+  if (j.contains("amount")) {
+    json am = j.at("amount");
+    if (am.is_object()) {
+      if (am.contains("max")) {
+        poly.maxAmount = am.at("max").get<int>();
+      }
+      if (am.contains("min"))
+        poly.minAmount = am.at("min").get<int>();
+      else
+        poly.minAmount = poly.maxAmount;
+    }
+    else {
+      poly.minAmount = poly.maxAmount = am.get<int>();
+    }
+  }
+  if (j.contains("mobility")) {
+    std::string mobility = j.at("mobility").get<std::string>();
+    if (mobility == "mirror") poly.mobility = Polyomino::MIRROR;
+    else if (mobility == "rotate") poly.mobility = Polyomino::ROTATE;
+    else if (mobility == "translate") poly.mobility = Polyomino::TRANSLATE;
+    else if (mobility == "stationary") poly.mobility = Polyomino::STATIONARY;
+    else {
+      throw std::runtime_error("Polyomino mobility type unknown: " + mobility);
+    }
+  }
+  if (!j.contains("morphs") || !j.at("morphs").is_array()) {
+    throw std::runtime_error("Polyomino must contain one or more morphs.");
+  }
+  for (json mor : j.at("morphs")) {
+    poly.morphs.push_back(mor.get<Shape>());
+  }
 }

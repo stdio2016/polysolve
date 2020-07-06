@@ -5,7 +5,9 @@
 #ifndef POLYOMINO_HPP
 #define POLYOMINO_HPP
 #include <vector>
+#include <string>
 #include "Shape.hpp"
+#include "GridType.hpp"
 
 class Polyomino {
 public:
@@ -19,6 +21,11 @@ public:
   int maxAmount;
   int minAmount;
   std::vector<Shape> morphs;
+  std::vector<std::string> names;
+
+  std::vector<Shape> transforms;
+  
+  void generateTransforms(const GridType *const grid);
 };
 
 #endif

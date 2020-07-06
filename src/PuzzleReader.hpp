@@ -16,7 +16,8 @@ public:
 };
 
 void from_json(const nlohmann::json &j, Puzzle &puzzle);
-void from_json(const nlohmann::json &j, std::vector<Coord> &coord);
+void from_json(const nlohmann::json &j, Shape &shape);
 void from_json(const nlohmann::json &j, Coord &coord);
+void from_json(const nlohmann::json &j, Polyomino &polyomino);
 
 #endif

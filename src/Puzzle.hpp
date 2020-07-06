@@ -5,13 +5,13 @@
 #ifndef PUZZLE_HPP
 #define PUZZLE_HPP
 #include <vector>
-#include "Coord.hpp"
+#include "Shape.hpp"
 #include "Polyomino.hpp"
 #include "GridType.hpp"
 
 class Puzzle {
 public:
-  std::vector<Coord> board;
+  Shape board;
   std::vector<Polyomino> polyominoes;
   GridType *grid;
 };

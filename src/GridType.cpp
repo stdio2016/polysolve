@@ -86,6 +86,6 @@ Coord GridTan::rotate(Coord c, int orient) const {
   for (int i = 0; i < (orient&3); i++) {
     c = Coord{c.x+1, c.z, -c.y};
   }
-  c.z &= 3;
+  c.x &= 3;
   return c;
 }
