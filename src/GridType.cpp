@@ -55,10 +55,10 @@ Coord GridTriangle::rotate(Coord c, int orient) const {
   if (orient >= 6) {
     // reflection
     orient -= 6;
-    c = Coord{c.y-c.x-c.z, c.y, c.z};
+    c = Coord{c.x, c.z-c.y-c.x, c.z};
   }
   for (int i = 0; i < orient; i++) {
-    c = Coord{c.x-c.y+c.z-1, c.x, 1-c.z};
+    c = Coord{1-c.x, c.y-c.z+c.x-1, c.y};
   }
   return c;
 }
@@ -81,10 +81,10 @@ Coord GridHexagon::rotate(Coord c, int orient) const {
 Coord GridTan::rotate(Coord c, int orient) const {
   if (orient & 4) {
     // reflection
-    c = Coord{-c.x, c.y, 2-c.z};
+    c = Coord{2-c.x, -c.y, c.z};
   }
   for (int i = 0; i < (orient&3); i++) {
-    c = Coord{c.y, -c.x, c.z+1};
+    c = Coord{c.x+1, c.z, -c.y};
   }
   c.z &= 3;
   return c;

@@ -1,5 +1,6 @@
 /**
  * Coordinate structure. Supports 4 dimensions.
+ * When there are multiple tiles per lattice point, the first dimension is tile id.
  */
 #pragma once
 #ifndef COORD_HPP
