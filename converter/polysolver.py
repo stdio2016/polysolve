@@ -240,7 +240,7 @@ with open(args.file, 'r') as ff:
         for pla in placement0:
             id, pos, morph, ori = pla
             pos = compact_coord(convert_coord(pos, dim, tileN))
-            placement.append({'id':id, 'pos':pos, 'morph':morph, 'ori':ori})
+            placement.append({'id':id, 'position':pos, 'morph':morph, 'orientation':ori})
         fun = scanner.next()
     print('  "placement": [')
     for i, p in enumerate(placement):

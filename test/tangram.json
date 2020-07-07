@@ -43,8 +43,8 @@
     }
   ],
   "placement": [
-    {"id": 2, "pos": [0, 0, 0], "morph": 1, "ori": 2},
-    {"id": 5, "pos": [0, 0, 3], "morph": 1, "ori": 1}
+    {"id": 2, "position": [0, 0, 0], "morph": 1, "orientation": 2},
+    {"id": 5, "position": [0, 0, 3], "morph": 1, "orientation": 1}
   ],
   "mode": "fillall",
   "solutions": [
