@@ -15,3 +15,17 @@ Or if you are using Visual Studio 2015,
 ```Batchfile
 cl /O2 /EHsc /Fepolysolve -I include src/*.cpp
 ```
+
+## Puzzle file
+
+Puzzle file is a JSON format file. **TODO**: describe file structure.
+
+## Converter
+
+You can convert puzzle file created with [PolyForm Puzzle Solver](https://www.jaapsch.net/puzzles/polysolver.htm) by the following command:
+
+```sh
+python3 converter/polysolver.py $IN_FILE > $OUT_FILE
+```
+
+Currently only the following grid types are supported: Square, Cube, Triangle, Hexagon, and Tan.
