@@ -18,20 +18,30 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     std::cerr << x.what() << std::endl;
     return 1;
   }
-  std::cout << "Showing file " << filename << "\n";
   int i = 0;
-  for (Polyomino po : puzzle.polyominoes) {
+  for (Polyomino &po : puzzle.polyominoes) {
     i += 1;
     po.generateTransforms(puzzle.grid);
-    std::cout << "polyomino #" << i << '\n';
-    for (Shape sh : po.transforms) {
-      for (Coord c : sh.coords) {
-        std::cout << "("<<c.x<<","<<c.y<<","<<c.z<<")";
+    if (args.info) { 
+      std::cout << "polyomino #" << i << '\n';
+      for (Shape sh : po.transforms) {
+        for (Coord c : sh.coords) {
+          std::cout << "("<<c.x<<","<<c.y<<","<<c.z<<")";
+        }
+        std::cout <<" morph="<<sh.morph<<" orient="<<sh.orient << '\n';
       }
-      std::cout <<" morph="<<sh.morph<<" orient="<<sh.orient << '\n';
     }
   }
-  std::cout << '\n';
+  puzzle.board.sortCoords();
+  puzzle.buildDlxRows();
+  if (args.info) {
+    std::cout << "DLX rows=" << puzzle.dlxRows.size() << '\n';
+    for (DlxRow &row : puzzle.dlxRows) {
+      std::cout << "polyomino #" << row.polyomino
+        <<" morph="<<row.morph<<" orient="<<row.orientation<<" coord=("
+        <<row.position.x<<","<<row.position.y<<","<<row.position.z<<")"<< '\n';
+    }
+  }
   return 0;
 }
 

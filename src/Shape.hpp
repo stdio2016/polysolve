@@ -14,7 +14,16 @@ public:
   int orient;
   
   explicit Shape(int morph=0, int orient=0): morph(morph), orient(orient) {}
+  
+  // normalize coords so the minimum of each dimension is 0
   void normalize(int maxTile);
+  
+  // sort coords
+  void sortCoords();
+  
+  // get translations for polyomino
+  // assume coords are sorted
+  std::vector<Coord> getValidTranslations(int maxTile) const;
 };
 
 inline bool operator==(const Shape &a, const Shape &b) {

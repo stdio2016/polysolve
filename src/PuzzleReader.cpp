@@ -23,11 +23,14 @@ void from_json(const json &j, Puzzle &puzzle) {
     throw std::runtime_error("Puzzle must have a board.");
   }
   puzzle.board = j.at("board").get<Shape>();
-  if (!j.contains("shapes") || !j.at("shapes").is_array()) {
+  if (!j.contains("shapes") || !j.at("shapes").is_array() || j.at("shapes").empty()) {
     throw std::runtime_error("Puzzle must have one or more shapes.");
   }
+  int i = 0;
   for (json sh : j.at("shapes")) {
     puzzle.polyominoes.push_back(sh.get<Polyomino>());
+    puzzle.polyominoes[i].id = i;
+    i += 1;
   }
 }
 
@@ -129,7 +132,6 @@ void from_json(const json &j, Polyomino &poly) {
   if (!j.is_object()) {
     throw std::runtime_error("Polyomino must be an object.");
   }
-  poly.minAmount = poly.maxAmount = 1;
   if (j.contains("amount")) {
     json am = j.at("amount");
     if (am.is_object()) {
@@ -152,7 +154,7 @@ void from_json(const json &j, Polyomino &poly) {
     else if (mobility == "translate") poly.mobility = Polyomino::TRANSLATE;
     else if (mobility == "stationary") poly.mobility = Polyomino::STATIONARY;
     else {
-      throw std::runtime_error("Polyomino mobility type unknown: " + mobility);
+      throw std::runtime_error("Polyomino mobility must be one of: mirror, rotate, translate, stationary, but seen: " + mobility);
     }
   }
   if (!j.contains("morphs") || !j.at("morphs").is_array()) {

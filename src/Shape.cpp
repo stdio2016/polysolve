@@ -1,4 +1,5 @@
 #include "Shape.hpp"
+#include <algorithm>
 
 void Shape::normalize(int maxTile) {
   if (coords.empty()) return ;
@@ -16,4 +17,19 @@ void Shape::normalize(int maxTile) {
     c.z -= mini.z;
     c.w -= mini.w;
   }
+}
+
+void Shape::sortCoords() {
+  std::sort(coords.begin(), coords.end());
+}
+
+std::vector<Coord> Shape::getValidTranslations(int maxTile) const {
+  if (maxTile <= 1) return coords;
+  std::vector<Coord> all = coords;
+  for (Coord &c : all) {
+    c.x = 0;
+  }
+  auto new_end = std::unique(all.begin(), all.end());
+  all.resize(new_end - all.begin());
+  return all;
 }

@@ -28,4 +28,8 @@ inline Coord operator+(Coord a, Coord b) {
   return Coord{a.x+b.x, a.y+b.y, a.z+b.z, a.w+b.w};
 }
 
+inline Coord operator-(Coord a, Coord b) {
+  return Coord{a.x-b.x, a.y-b.y, a.z-b.z, a.w-b.w};
+}
+
 #endif

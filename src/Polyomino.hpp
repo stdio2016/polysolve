@@ -17,6 +17,7 @@ public:
     ROTATE = 2,
     MIRROR = 3
   };
+  int id;
   MobilityType mobility;
   int maxAmount;
   int minAmount;
@@ -24,6 +25,8 @@ public:
   std::vector<std::string> names;
 
   std::vector<Shape> transforms;
+  
+  Polyomino(): id(0), mobility(ROTATE), minAmount(1), maxAmount(1) {}
   
   void generateTransforms(const GridType *const grid);
 };
