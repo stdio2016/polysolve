@@ -39,6 +39,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   }
   puzzle.board.sortCoords();
   puzzle.buildDlxRows();
+  puzzle.buildDlxColumns();
   std::cout << "build time=" << tm1.getRunTime() << "ms\n";
   if (args.info) {
     std::cout << "DLX rows=" << puzzle.dlxRows.size() << '\n';
@@ -47,6 +48,22 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
         <<" morph="<<row.morph<<" orient="<<row.orientation<<" coord=("
         <<row.position.x<<","<<row.position.y<<","<<row.position.z<<")"<< '\n';
     }
+  }
+  DlxColumn *ptr = &puzzle.dlxColumns[0];
+  int colN = 0;
+  do {
+    colN += 1;
+    if (args.info) {
+      std::cout << "coord=("
+        <<ptr->coord.x<<","<<ptr->coord.y<<","<<ptr->coord.z<<")"
+        <<" polyomino="<< ptr->polyomino
+        <<" amount="<<ptr->minValue<<'~'<<ptr->maxValue
+        <<" value="<<ptr->value <<'\n';
+    }
+    ptr = ptr->getRight();
+  } while (ptr != puzzle.dlxColumns.data());
+  if (args.info) {
+    std::cout << "DLX columns="<<colN << '\n';
   }
   return 0;
 }

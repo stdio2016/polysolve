@@ -135,13 +135,16 @@ void from_json(const json &j, Polyomino &poly) {
   if (j.contains("amount")) {
     json am = j.at("amount");
     if (am.is_object()) {
-      if (am.contains("max")) {
+      if (am.contains("max") && am.contains("min")) {
         poly.maxAmount = am.at("max").get<int>();
-      }
-      if (am.contains("min"))
         poly.minAmount = am.at("min").get<int>();
-      else
-        poly.minAmount = poly.maxAmount;
+      }
+      else {
+        throw std::runtime_error("Both maximum and minimum amount must be specified.");
+      }
+      if (poly.minAmount > poly.maxAmount) {
+        throw std::runtime_error("Maximum amount must be greater than or equal to minimum amount.");
+      }
     }
     else {
       poly.minAmount = poly.maxAmount = am.get<int>();

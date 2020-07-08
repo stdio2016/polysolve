@@ -56,3 +56,62 @@ void Puzzle::buildDlxRows() {
     } // for each transformed morph
   } // for each polyomino
 }
+
+void Puzzle::buildDlxColumns() {
+  // root node
+  dlxColumns.clear();
+  dlxColumns.push_back(DlxColumn{});
+  dlxColumns[0].polyomino = -1;
+  dlxColumns[0].coord.x = -1;
+
+  // column for each board tile
+  int n = board.coords.size();
+  for (int i = 0; i < n; i++) {
+    Coord pos = board.coords[i];
+    DlxColumn col{};
+    col.minValue = 1;
+    col.maxValue = 1;
+    col.coord = pos;
+    col.polyomino = -1;
+    dlxColumns.push_back(col);
+  }
+  
+  // column for each polyomino
+  int m = polyominoes.size();
+  for (int i = 0; i < m; i++) {
+    const Polyomino &poly = polyominoes[i];
+    DlxColumn col{};
+    col.minValue = poly.minAmount;
+    col.maxValue = poly.maxAmount;
+    col.coord = Coord{-1};
+    col.polyomino = i;
+    dlxColumns.push_back(col);
+  }
+  
+  // build linked list structure
+  for (int i = 0; i < n+m+1; i++) {
+    dlxColumns[i].up = dlxColumns[i].down = &dlxColumns[i];
+    if (i == 0)
+      dlxColumns[i].left = &dlxColumns[n+m];
+    else
+      dlxColumns[i].left = &dlxColumns[i-1];
+    if (i == n+m)
+      dlxColumns[i].right = &dlxColumns[0];
+    else
+      dlxColumns[i].right = &dlxColumns[i+1];
+    dlxColumns[i].row = nullptr;
+    dlxColumns[i].column = &dlxColumns[i];
+    dlxColumns[i].size = 0;
+    dlxColumns[i].value = 0;
+  }
+  
+  // remove columns whose minValue are 0
+  for (int i = 1; i < n+m+1; i++) {
+    if (dlxColumns[i].minValue == 0) {
+      DlxColumn *left = dlxColumns[i].getLeft();
+      DlxColumn *right = dlxColumns[i].getRight();
+      left->right = right;
+      right->left = left;
+    }
+  }
+}

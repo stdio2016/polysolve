@@ -33,6 +33,7 @@ struct DlxColumn : DlxCell {
   Coord coord;
   int polyomino;
   
+  inline DlxColumn *getLeft() const { return (DlxColumn*) left; }
   inline DlxColumn *getRight() const { return (DlxColumn*) right; }
 };
 

@@ -5,6 +5,7 @@
 #ifndef PUZZLE_HPP
 #define PUZZLE_HPP
 #include <vector>
+#include <map>
 #include "Shape.hpp"
 #include "Polyomino.hpp"
 #include "GridType.hpp"
@@ -17,9 +18,12 @@ public:
   GridType *grid;
   
   std::vector<DlxRow> dlxRows;
+  std::vector<DlxColumn> dlxColumns;
+  std::map<Coord, int> coordMap;
   
   // build Dancing Links data structure
   void buildDlxRows();
+  void buildDlxColumns();
 };
 
 #endif
