@@ -1,10 +1,14 @@
 #include <iostream>
 #include <fstream>
 #include <exception>
+#include <omp.h>
 #include "CmdArgs.hpp"
 #include "PuzzleReader.hpp"
+#include "Timing.hpp"
 
 static int solveOneFile(const CmdArgs &args, std::string filename, std::istream &puzzlefile) {
+  Timing tm1;
+  std::cout.precision(3);
   if (filename.empty()) filename = "from stdin";
   else filename = "\"" + filename + "\"";
   Puzzle puzzle;
@@ -18,6 +22,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     std::cerr << x.what() << std::endl;
     return 1;
   }
+  std::cout << "parse time=" << std::fixed << tm1.getRunTime() << "ms\n";
   int i = 0;
   for (Polyomino &po : puzzle.polyominoes) {
     i += 1;
@@ -34,6 +39,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   }
   puzzle.board.sortCoords();
   puzzle.buildDlxRows();
+  std::cout << "build time=" << tm1.getRunTime() << "ms\n";
   if (args.info) {
     std::cout << "DLX rows=" << puzzle.dlxRows.size() << '\n';
     for (DlxRow &row : puzzle.dlxRows) {
@@ -70,13 +76,17 @@ int main(int argc, char *argv[]) {
       lastError = 1;
       continue;
     }
+    Timing tm;
     lastError = solveOneFile(args, filename, puzzlefile);
+    std::cout << "total solve time: " << tm.getRunTime() << "ms\n";
   }
   if (args.filenames.empty()) {
     if (args.info) {
       std::cout << "FILE=stdin\n";
     }
+    Timing tm;
     lastError = solveOneFile(args, "", std::cin);
+    std::cout << "solve time: " << tm.getRunTime() << "ms\n";
   }
   return lastError;
 }
