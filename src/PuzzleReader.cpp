@@ -142,12 +142,15 @@ void from_json(const json &j, Polyomino &poly) {
       else {
         throw std::runtime_error("Both maximum and minimum amount must be specified.");
       }
-      if (poly.minAmount > poly.maxAmount) {
-        throw std::runtime_error("Maximum amount must be greater than or equal to minimum amount.");
-      }
     }
     else {
       poly.minAmount = poly.maxAmount = am.get<int>();
+    }
+    if (poly.minAmount < 0 || poly.maxAmount < 0) {
+      throw std::runtime_error("Amount must be non-negative integer.");
+    }
+    if (poly.minAmount > poly.maxAmount) {
+      throw std::runtime_error("Maximum amount must be greater than or equal to minimum amount.");
     }
   }
   if (j.contains("mobility")) {
