@@ -15,8 +15,6 @@ struct DlxCell {
   DlxCell *left, *right;
   DlxColumn *column;
   DlxRow *row;
-  
-  bool isColumn() const;
 };
 
 struct DlxRow {
@@ -36,7 +34,5 @@ struct DlxColumn : DlxCell {
   inline DlxColumn *getLeft() const { return (DlxColumn*) left; }
   inline DlxColumn *getRight() const { return (DlxColumn*) right; }
 };
-
-inline bool DlxCell::isColumn() const { return this == column; }
 
 #endif

@@ -1,12 +1,13 @@
 #include "Puzzle.hpp"
 #include <set>
 #include <iostream>
+#include <utility>
 
 void Puzzle::buildDlxRows() {
-  dlxRows.clear();
+  dlx.rows.clear();
   
   // convert boord coords to set
-  std::set<Coord> boardCoords(board.coords.begin(), board.coords.end());
+  std::set<Coord> boardCoords(board.coords.cbegin(), board.coords.cend());
   
   // get valid movements
   int maxTile = grid->orbit().size();
@@ -49,7 +50,7 @@ void Puzzle::buildDlxRows() {
           row.morph = trans.morph;
           row.orientation = trans.orient;
           row.position = coord;
-          dlxRows.push_back(row);
+          dlx.rows.push_back(row);
           howMany += 1;
         }
       } // try each translation
@@ -59,10 +60,10 @@ void Puzzle::buildDlxRows() {
 
 void Puzzle::buildDlxColumns() {
   // root node
-  dlxColumns.clear();
-  dlxColumns.push_back(DlxColumn{});
-  dlxColumns[0].polyomino = -1;
-  dlxColumns[0].coord.x = -1;
+  dlx.columns.clear();
+  dlx.columns.push_back(DlxColumn{});
+  dlx.columns[0].polyomino = -1;
+  dlx.columns[0].coord.x = -1;
 
   // column for each board tile
   int n = board.coords.size();
@@ -73,7 +74,7 @@ void Puzzle::buildDlxColumns() {
     col.maxValue = 1;
     col.coord = pos;
     col.polyomino = -1;
-    dlxColumns.push_back(col);
+    dlx.columns.push_back(col);
   }
   
   // column for each polyomino
@@ -85,33 +86,93 @@ void Puzzle::buildDlxColumns() {
     col.maxValue = poly.maxAmount;
     col.coord = Coord{-1};
     col.polyomino = i;
-    dlxColumns.push_back(col);
+    dlx.columns.push_back(col);
   }
   
   // build linked list structure
   for (int i = 0; i < n+m+1; i++) {
-    dlxColumns[i].up = dlxColumns[i].down = &dlxColumns[i];
+    dlx.columns[i].up = dlx.columns[i].down = &dlx.columns[i];
     if (i == 0)
-      dlxColumns[i].left = &dlxColumns[n+m];
+      dlx.columns[i].left = &dlx.columns[n+m];
     else
-      dlxColumns[i].left = &dlxColumns[i-1];
+      dlx.columns[i].left = &dlx.columns[i-1];
     if (i == n+m)
-      dlxColumns[i].right = &dlxColumns[0];
+      dlx.columns[i].right = &dlx.columns[0];
     else
-      dlxColumns[i].right = &dlxColumns[i+1];
-    dlxColumns[i].row = nullptr;
-    dlxColumns[i].column = &dlxColumns[i];
-    dlxColumns[i].size = 0;
-    dlxColumns[i].value = 0;
+      dlx.columns[i].right = &dlx.columns[i+1];
+    dlx.columns[i].row = nullptr;
+    dlx.columns[i].column = &dlx.columns[i];
+    dlx.columns[i].size = 0;
+    dlx.columns[i].value = 0;
   }
   
   // remove columns whose minValue are 0
   for (int i = 1; i < n+m+1; i++) {
-    if (dlxColumns[i].minValue == 0) {
-      DlxColumn *left = dlxColumns[i].getLeft();
-      DlxColumn *right = dlxColumns[i].getRight();
+    if (dlx.columns[i].minValue == 0) {
+      DlxColumn *left = dlx.columns[i].getLeft();
+      DlxColumn *right = dlx.columns[i].getRight();
       left->right = right;
       right->left = left;
     }
   }
+}
+
+void Puzzle::buildDlxCells() {
+  
+}
+
+Puzzle::DLX::DLX(const DLX &other):
+  // first copy nodes
+  rows(other.rows), columns(other.columns), cells(other.cells) {
+  // then remap up/down/left/right links
+  DlxColumn *const mycol = columns.data();
+  DlxCell *const mycell = cells.data();
+  DlxRow *const myrow = rows.data();
+  // const_cast just for pointer arithmetic
+  DlxColumn *const ocol = const_cast<DlxColumn *>(other.columns.data());
+  DlxCell *const ocell = const_cast<DlxCell *>(other.cells.data());
+  DlxRow *const orow = const_cast<DlxRow *>(other.rows.data());
+  
+  int colcount = 0;
+  const auto fixCellOrColumn = [&](DlxCell *&x) {
+    // column of x is x if and only of x is column
+    if (x->column == x) {
+      colcount += 1;
+      x = (DlxColumn*)x - ocol + mycol;
+    }
+    else {
+      x = (DlxCell*)x - ocell + mycell;
+    }
+  };
+  
+  for (DlxColumn &col : columns) {
+    fixCellOrColumn(col.up);
+    fixCellOrColumn(col.down);
+    col.left = col.getLeft() - ocol + mycol;
+    col.right = col.getRight() - ocol + mycol;
+    col.row = nullptr;
+    col.column = &col;
+  }
+  for (DlxCell &cell : cells) {
+    fixCellOrColumn(cell.up);
+    fixCellOrColumn(cell.down);
+    cell.left = cell.left - ocell + mycell;
+    cell.right = cell.right - ocell + mycell;
+    cell.row = cell.row - orow + myrow;
+    cell.column = cell.column - ocol + mycol;
+  }
+}
+
+// copy-and-swap idiom
+Puzzle::DLX &Puzzle::DLX::operator=(const DLX &other) {
+  if (this != &other) {
+    DLX(other).swap(*this);
+  }
+  return *this;
+}
+
+void Puzzle::DLX::swap(DLX &other) noexcept {
+  std::swap(rows, other.rows);
+  std::swap(columns, other.columns);
+  std::swap(cells, other.cells);
 }

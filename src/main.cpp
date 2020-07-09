@@ -40,16 +40,22 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   puzzle.board.sortCoords();
   puzzle.buildDlxRows();
   puzzle.buildDlxColumns();
-  std::cout << "build time=" << tm1.getRunTime() << "ms\n";
+  puzzle.buildDlxCells();
+  std::cout << "build time=" << tm1.getRunTime() << "ms"<<std::endl;
+  #pragma omp parallel firstprivate(puzzle)
+  {
+    ;
+  }
+  std::cout << "copy time=" << tm1.getRunTime() << "ms"<<std::endl;
   if (args.info) {
-    std::cout << "DLX rows=" << puzzle.dlxRows.size() << '\n';
-    for (DlxRow &row : puzzle.dlxRows) {
+    std::cout << "DLX rows=" << puzzle.dlx.rows.size() << '\n';
+    for (DlxRow &row : puzzle.dlx.rows) {
       std::cout << "polyomino #" << row.polyomino
         <<" morph="<<row.morph<<" orient="<<row.orientation<<" coord=("
         <<row.position.x<<","<<row.position.y<<","<<row.position.z<<")"<< '\n';
     }
   }
-  DlxColumn *ptr = &puzzle.dlxColumns[0];
+  DlxColumn *ptr = &puzzle.dlx.columns[0];
   int colN = 0;
   do {
     colN += 1;
@@ -61,7 +67,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
         <<" value="<<ptr->value <<'\n';
     }
     ptr = ptr->getRight();
-  } while (ptr != puzzle.dlxColumns.data());
+  } while (ptr != puzzle.dlx.columns.data());
   if (args.info) {
     std::cout << "DLX columns="<<colN << '\n';
   }
