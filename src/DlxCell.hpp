@@ -21,6 +21,7 @@ struct DlxRow {
   int polyomino;
   int morph;
   int orientation;
+  int transform;
   Coord position;
 };
 

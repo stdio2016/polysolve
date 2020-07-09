@@ -18,7 +18,8 @@ void Puzzle::buildDlxRows() {
     const Polyomino &poly = polyominoes[i];
     int howMany = 0;
     // for each transformed morph
-    for (const Shape &trans : poly.transforms) {
+    for (int j = 0; j < poly.transforms.size(); j++) {
+      const Shape &trans = poly.transforms[j];
       // empty shape!
       if (trans.coords.empty()) continue ;
       
@@ -49,6 +50,7 @@ void Puzzle::buildDlxRows() {
           row.polyomino = i;
           row.morph = trans.morph;
           row.orientation = trans.orient;
+          row.transform = j;
           row.position = coord;
           dlx.rows.push_back(row);
           howMany += 1;
@@ -74,6 +76,7 @@ void Puzzle::buildDlxColumns() {
     col.maxValue = 1;
     col.coord = pos;
     col.polyomino = -1;
+    coordMap[pos] = i;
     dlx.columns.push_back(col);
   }
   
@@ -118,7 +121,33 @@ void Puzzle::buildDlxColumns() {
 }
 
 void Puzzle::buildDlxCells() {
-  
+  // count cells needed
+  int n = board.coords.size();
+  int need = 0;
+  for (const DlxRow &row : dlx.rows) {
+    need += polyominoes[row.polyomino].morphs[row.morph].coords.size();
+  }
+  dlx.cells.resize(need);
+  need = 0;
+  for (DlxRow &row : dlx.rows) {
+    const Shape &sh = polyominoes[row.polyomino].transforms[row.transform];
+    int size = sh.coords.size();
+    for (const Coord &coord : sh.coords) {
+      DlxCell &cell = dlx.cells[need];
+      DlxColumn &col = dlx.columns[1 + coordMap[coord]];
+      cell.up = col.up;
+      cell.down = &col;
+      col.up->down = &cell;
+      col.up = &cell;
+      cell.left = &cell - 1;
+      cell.right = &cell + 1;
+      cell.row = &row;
+      cell.column = &col;
+      need += 1;
+    }
+    dlx.cells[need - size].left = &dlx.cells[need - 1];
+    dlx.cells[need - 1].right = &dlx.cells[need - size];
+  }
 }
 
 Puzzle::DLX::DLX(const DLX &other):

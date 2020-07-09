@@ -22,7 +22,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     std::cerr << x.what() << std::endl;
     return 1;
   }
-  std::cout << "parse time=" << std::fixed << tm1.getRunTime() << "ms\n";
+  std::cout << "parse time=" << std::fixed << tm1.getRunTime() << "ms" << std::endl;
   int i = 0;
   for (Polyomino &po : puzzle.polyominoes) {
     i += 1;
