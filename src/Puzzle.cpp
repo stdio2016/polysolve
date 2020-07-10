@@ -26,15 +26,15 @@ void Puzzle::buildDlxRows() {
       // try each translation
       bool first = true;
       for (Coord coord : validTrans) {
-        // HACK to process stationary pieces
-        if (poly.mobility == Polyomino::STATIONARY) {
-          if (!first) break;
-          coord = Coord{0, 0, 0, 0};
-        }
-        first = false;
         bool inside = true;
         Coord c0 = trans.coords[0];
         if (maxTile > 1) c0.x = 0;
+        // HACK to process stationary pieces
+        if (poly.mobility == Polyomino::STATIONARY) {
+          if (!first) break;
+          coord = c0;
+        }
+        first = false;
         
         // check if all translated coords are inside the board
         for (Coord c : trans.coords) {
