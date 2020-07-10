@@ -38,6 +38,15 @@ public:
   void buildDlxRows();
   void buildDlxColumns();
   void buildDlxCells();
+
+  // solve
+  DlxColumn *minfit();
+  void dlxSolve();
+  int numSolution;
+
+private:
+  std::vector<DlxCell *> removedRows;
+  void dlxSolveRecursive();
 };
 
 #endif

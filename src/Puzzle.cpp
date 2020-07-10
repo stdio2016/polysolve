@@ -51,7 +51,7 @@ void Puzzle::buildDlxRows() {
           row.morph = trans.morph;
           row.orientation = trans.orient;
           row.transform = j;
-          row.position = coord;
+          row.position = coord - c0;
           dlx.rows.push_back(row);
           howMany += 1;
         }
@@ -125,24 +125,34 @@ void Puzzle::buildDlxCells() {
   int n = board.coords.size();
   int need = 0;
   for (const DlxRow &row : dlx.rows) {
-    need += polyominoes[row.polyomino].morphs[row.morph].coords.size();
+    need += polyominoes[row.polyomino].morphs[row.morph].coords.size() + 1;
   }
   dlx.cells.resize(need);
   need = 0;
   for (DlxRow &row : dlx.rows) {
     const Shape &sh = polyominoes[row.polyomino].transforms[row.transform];
-    int size = sh.coords.size();
+    int size = sh.coords.size() + 1;
     for (const Coord &coord : sh.coords) {
       DlxCell &cell = dlx.cells[need];
-      DlxColumn &col = dlx.columns[1 + coordMap[coord]];
-      cell.up = col.up;
-      cell.down = &col;
-      col.up->down = &cell;
-      col.up = &cell;
+      Coord newcoord = coord + row.position;
+      DlxColumn &col = dlx.columns[1 + coordMap[newcoord]];
+      cell.setDown(&col);
       cell.left = &cell - 1;
       cell.right = &cell + 1;
       cell.row = &row;
       cell.column = &col;
+      col.size += 1;
+      need += 1;
+    }
+    {
+      DlxCell &cell = dlx.cells[need];
+      DlxColumn &col = dlx.columns[1 + n + row.polyomino];
+      cell.setDown(&col);
+      cell.left = &cell - 1;
+      cell.right = &cell + 1;
+      cell.row = &row;
+      cell.column = &col;
+      col.size += 1;
       need += 1;
     }
     dlx.cells[need - size].left = &dlx.cells[need - 1];
@@ -204,4 +214,55 @@ void Puzzle::DLX::swap(DLX &other) noexcept {
   std::swap(rows, other.rows);
   std::swap(columns, other.columns);
   std::swap(cells, other.cells);
+}
+
+DlxColumn *Puzzle::minfit() {
+  DlxColumn *root = &dlx.columns[0];
+  DlxColumn *c = root->getRight();
+  int minfit = c->size;
+  for (DlxColumn *col = c->getRight();
+      col != root; col = col->getRight()) {
+    int value = col->value;
+    // unsatisfiable
+    if (value + col->size < col->minValue) {
+      return nullptr;
+    }
+    // min fit
+    if (col->size < minfit) {
+      c = col;
+      minfit = col->size;
+    }
+  }
+  return c;
+}
+
+void Puzzle::dlxSolve() {
+  // should be enough space
+  removedRows.reserve(dlx.rows.size());
+  dlxSolveRecursive();
+  removedRows.clear();
+}
+
+void Puzzle::dlxSolveRecursive() {
+  DlxColumn *root = &dlx.columns[0];
+  if (root->right == root) {
+    numSolution += 1;
+    return ;
+  }
+  DlxColumn *col = minfit();
+  if (!col) return; //unsatisfiable
+  DlxCell *ptr = col->down;
+  int removeCount = col->size;
+  while (ptr != col) {
+    DlxRow row = *ptr->row;
+    ptr->cover();
+    dlxSolveRecursive();
+    ptr->uncover();
+    removedRows.push_back(ptr);
+    ptr = ptr->down;
+  }
+  for (int i = removeCount - 1; i >= 0; i--) {
+    removedRows.back()->relinkRow<true>();
+    removedRows.pop_back();
+  }
 }

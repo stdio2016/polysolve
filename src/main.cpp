@@ -64,13 +64,17 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
         <<ptr->coord.x<<","<<ptr->coord.y<<","<<ptr->coord.z<<")"
         <<" polyomino="<< ptr->polyomino
         <<" amount="<<ptr->minValue<<'~'<<ptr->maxValue
-        <<" value="<<ptr->value <<'\n';
+        <<" value="<<ptr->value<<" size="<<ptr->size <<'\n';
     }
     ptr = ptr->getRight();
   } while (ptr != puzzle.dlx.columns.data());
   if (args.info) {
     std::cout << "DLX columns="<<colN << '\n';
   }
+  puzzle.numSolution = 0;
+  puzzle.dlxSolve();
+  std::cout << "number of solutions = " << puzzle.numSolution << '\n';
+  std::cout << "solve time=" << tm1.getRunTime() << "ms"<<std::endl;
   return 0;
 }
 
@@ -87,6 +91,7 @@ int main(int argc, char *argv[]) {
   }
   
   int lastError = 1;
+  std::cout << std::fixed;
   for (std::string filename : args.filenames) {
     lastError = 0;
     if (args.info) {
