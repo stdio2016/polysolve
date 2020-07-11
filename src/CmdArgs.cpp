@@ -8,6 +8,7 @@ void CmdArgs::setDefault(void) {
   ver = false;
   info = false;
   parallelLevel = 0;
+  numThreads = 0;
 }
 
 static int mystoi(std::string str, int &out, std::string what, int minV, int maxV) {
@@ -46,10 +47,17 @@ bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
       else if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--info") == 0) {
         info = true;
       }
-      else if (strcmp(argv[i], "-parlvl") == 0 || strcmp(argv[i], "--parallel-level") == 0) {
+      else if (strcmp(argv[i], "-pl") == 0 || strcmp(argv[i], "--parallel-level") == 0) {
         if (i+1 < argc) {
           i += 1;
           if (!mystoi(argv[i], parallelLevel, "parallel level", 0, 1000))
+            return false;
+        }
+      }
+      else if (strcmp(argv[i], "-nt") == 0 || strcmp(argv[i], "--num-threads") == 0) {
+        if (i+1 < argc) {
+          i += 1;
+          if (!mystoi(argv[i], numThreads, "number of threads", 0, 1000))
             return false;
         }
       }

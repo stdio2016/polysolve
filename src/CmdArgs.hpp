@@ -14,6 +14,7 @@ public:
   bool ver;
   int info;
   int parallelLevel;
+  int numThreads;
   
   void setDefault(void);
   bool parseCmdLine(int argc, char *argv[]);

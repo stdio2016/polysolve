@@ -57,7 +57,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     
     std::vector<int> removedRowCount(args.parallelLevel);
     
-    #pragma omp for schedule(static, 1) reduction(+:numSolution)
+    #pragma omp for schedule(dynamic, 1) reduction(+:numSolution)
     for (int i = 0; i < subproblems.size(); i++) {
       if (subproblems[i].size() != args.parallelLevel) {
         numSolution += 1;
@@ -97,6 +97,9 @@ int main(int argc, char *argv[]) {
   if (args.ver) {
     args.showVersion();
     return 0;
+  }
+  if (args.numThreads > 0) {
+    omp_set_num_threads(args.numThreads);
   }
   
   int lastError = 1;
