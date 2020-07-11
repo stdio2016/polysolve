@@ -13,6 +13,7 @@ public:
   bool help;
   bool ver;
   int info;
+  int parallelLevel;
   
   void setDefault(void);
   bool parseCmdLine(int argc, char *argv[]);

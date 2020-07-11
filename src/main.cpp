@@ -42,38 +42,42 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   puzzle.buildDlxColumns();
   puzzle.buildDlxCells();
   std::cout << "build time=" << tm1.getRunTime() << "ms"<<std::endl;
-  #pragma omp parallel firstprivate(puzzle)
-  {
-    ;
-  }
-  std::cout << "copy time=" << tm1.getRunTime() << "ms"<<std::endl;
-  if (args.info) {
-    std::cout << "DLX rows=" << puzzle.dlx.rows.size() << '\n';
-    for (DlxRow &row : puzzle.dlx.rows) {
-      std::cout << "polyomino #" << row.polyomino
-        <<" morph="<<row.morph<<" orient="<<row.orientation<<" coord=("
-        <<row.position.x<<","<<row.position.y<<","<<row.position.z<<")"<< '\n';
-    }
-  }
-  DlxColumn *ptr = &puzzle.dlx.columns[0];
-  int colN = 0;
-  do {
-    colN += 1;
-    if (args.info) {
-      std::cout << "coord=("
-        <<ptr->coord.x<<","<<ptr->coord.y<<","<<ptr->coord.z<<")"
-        <<" polyomino="<< ptr->polyomino
-        <<" amount="<<ptr->minValue<<'~'<<ptr->maxValue
-        <<" value="<<ptr->value<<" size="<<ptr->size <<'\n';
-    }
-    ptr = ptr->getRight();
-  } while (ptr != puzzle.dlx.columns.data());
-  if (args.info) {
-    std::cout << "DLX columns="<<colN << '\n';
-  }
-  puzzle.numSolution = 0;
+  // create subproblem by expanding 3 levels of search tree
+  puzzle.targetLevel = args.parallelLevel;
   puzzle.dlxSolve();
-  std::cout << "number of solutions = " << puzzle.numSolution << '\n';
+  std::vector<std::vector<int>> subproblems = puzzle.solutions;
+  std::cout << "create subproblem time=" << tm1.getRunTime() << "ms"<<std::endl;
+  int numSolution = 0;
+  puzzle.targetLevel = -1;  // reset search tree depth
+  puzzle.solutions.clear();
+  #pragma omp parallel firstprivate(puzzle, tm1)
+  {
+    #pragma omp master
+    std::cout << "copy time=" << tm1.getRunTime() << "ms"<<std::endl;
+    
+    std::vector<int> removedRowCount(args.parallelLevel);
+    
+    #pragma omp for schedule(static, 1) reduction(+:numSolution)
+    for (int i = 0; i < subproblems.size(); i++) {
+      // set up subproblem
+      for (int j = 0; j < args.parallelLevel; j++)
+        removedRowCount[j] = puzzle.enterBranch(subproblems[i][j]);
+      
+      puzzle.dlxSolve();
+      
+      // reset data structure
+      for (int j = args.parallelLevel; j > 0; j--)
+        puzzle.leaveBranch(removedRowCount[j-1]);
+      
+      numSolution += puzzle.numSolution;
+      
+      if (args.info) {
+        #pragma omp critical
+        std::cout << "thread "<<omp_get_thread_num()<<" solve in " << tm1.getRunTime() << "ms" << std::endl;
+      }
+    }
+  }
+  std::cout << "number of solutions = " << numSolution << '\n';
   std::cout << "solve time=" << tm1.getRunTime() << "ms"<<std::endl;
   return 0;
 }

@@ -10,6 +10,7 @@
 #include "Polyomino.hpp"
 #include "GridType.hpp"
 #include "DlxCell.hpp"
+#include "Timing.hpp"
 
 class Puzzle {
 public:
@@ -42,11 +43,17 @@ public:
   // solve
   DlxColumn *minfit();
   void dlxSolve();
+  int enterBranch(int row);
+  // input is the return value of enterBranch
+  void leaveBranch(int removedRowCount);
+  int targetLevel;
   int numSolution;
+  std::vector<std::vector<int>> solutions;
 
 private:
   std::vector<DlxCell *> removedRows;
-  void dlxSolveRecursive();
+  std::vector<int> solutionStack;
+  void dlxSolveRecursive(int lv);
 };
 
 #endif

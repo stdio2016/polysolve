@@ -6,6 +6,7 @@ void CmdArgs::setDefault(void) {
   help = false;
   ver = false;
   info = false;
+  parallelLevel = 0;
 }
 
 bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
@@ -20,6 +21,13 @@ bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
       }
       else if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--info") == 0) {
         info = true;
+      }
+      else if (strcmp(argv[i], "-parlvl") == 0 || strcmp(argv[i], "--parallel-level") == 0) {
+        if (i+1 < argc) {
+          i += 1;
+          char *nouse;
+          parallelLevel = strtol(argv[i], &nouse, 10);
+        }
       }
       else if (strcmp(argv[i], "--") == 0) {
         // this is not a command line option

@@ -238,31 +238,72 @@ DlxColumn *Puzzle::minfit() {
 
 void Puzzle::dlxSolve() {
   // should be enough space
+  numSolution = 0;
   removedRows.reserve(dlx.rows.size());
-  dlxSolveRecursive();
-  removedRows.clear();
+  solutionStack.reserve(dlx.rows.size());
+  dlxSolveRecursive(0);
 }
 
-void Puzzle::dlxSolveRecursive() {
+void Puzzle::dlxSolveRecursive(int lv) {
   DlxColumn *root = &dlx.columns[0];
-  if (root->right == root) {
-    numSolution += 1;
-    return ;
-  }
   DlxColumn *col = minfit();
   if (!col) return; //unsatisfiable
+  if (root->right == root || lv == targetLevel) {
+    numSolution += 1;
+    solutions.push_back(solutionStack);
+    return ;
+  }
   DlxCell *ptr = col->down;
   int removeCount = col->size;
   while (ptr != col) {
-    DlxRow row = *ptr->row;
+    solutionStack.push_back(ptr->row - &dlx.rows[0]);
     ptr->cover();
-    dlxSolveRecursive();
+    dlxSolveRecursive(lv + 1);
     ptr->uncover();
+    solutionStack.pop_back();
     removedRows.push_back(ptr);
     ptr = ptr->down;
   }
   for (int i = removeCount - 1; i >= 0; i--) {
     removedRows.back()->relinkRow<true>();
     removedRows.pop_back();
+  }
+}
+
+int Puzzle::enterBranch(int row) {
+  solutionStack.push_back(row);
+  DlxColumn *c = minfit();
+  DlxCell *n;
+  int removedRowCount = 0;
+  if (c == nullptr) {
+    std::cerr << "something goes wrong! row " << row << " cannot be removed" << '\n';
+    return -1;
+  }
+  n = c->down;
+  while (n->row != &dlx.rows[row]) {
+    removedRows.push_back(n);
+    n->unlinkRow<true>();
+    n = n->down;
+    removedRowCount += 1;
+  }
+  removedRows.push_back(n);
+  n->cover();
+  return removedRowCount;
+}
+
+void Puzzle::leaveBranch(int removedRowCount) {
+  solutionStack.pop_back();
+  if (removedRowCount == -1) return;
+  DlxCell *n = removedRows.back();
+  removedRows.pop_back();
+
+  // recover
+  n->uncover();
+  n->relinkRow<true>();
+
+  while (removedRowCount > 0) {
+    removedRows.back()->relinkRow<true>();
+    removedRows.pop_back();
+    removedRowCount -= 1;
   }
 }
