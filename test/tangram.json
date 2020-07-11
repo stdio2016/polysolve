@@ -7,6 +7,7 @@
   },
   "shapes": [
     {
+      "name": "median triangle",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -14,6 +15,7 @@
       ]
     },
     {
+      "name": "large triangle",
       "mobility": "mirror",
       "amount": {"max": 2, "min": 0},
       "morphs": [
@@ -21,6 +23,7 @@
       ]
     },
     {
+      "name": "small triangle",
       "mobility": "mirror",
       "amount": {"max": 2, "min": 0},
       "morphs": [
@@ -28,6 +31,7 @@
       ]
     },
     {
+      "name": "square",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -35,6 +39,7 @@
       ]
     },
     {
+      "name": "parallelogram",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [

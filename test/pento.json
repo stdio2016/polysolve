@@ -7,6 +7,7 @@
   },
   "shapes": [
     {
+      "name": "I",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -14,6 +15,7 @@
       ]
     },
     {
+      "name": "L",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -21,6 +23,7 @@
       ]
     },
     {
+      "name": "N",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -28,6 +31,7 @@
       ]
     },
     {
+      "name": "Y",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -35,6 +39,7 @@
       ]
     },
     {
+      "name": "P",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -42,6 +47,7 @@
       ]
     },
     {
+      "name": "U",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -49,6 +55,7 @@
       ]
     },
     {
+      "name": "V",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -56,6 +63,7 @@
       ]
     },
     {
+      "name": "W",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -63,6 +71,7 @@
       ]
     },
     {
+      "name": "Z",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -70,6 +79,7 @@
       ]
     },
     {
+      "name": "T",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -77,6 +87,7 @@
       ]
     },
     {
+      "name": "F",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
@@ -84,6 +95,7 @@
       ]
     },
     {
+      "name": "X",
       "mobility": "mirror",
       "amount": {"max": 1, "min": 0},
       "morphs": [
