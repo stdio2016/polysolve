@@ -1,12 +1,36 @@
 #include "CmdArgs.hpp"
 #include <cstring>
 #include <iostream>
+#include <exception>
 
 void CmdArgs::setDefault(void) {
   help = false;
   ver = false;
   info = false;
   parallelLevel = 0;
+}
+
+static int mystoi(std::string str, int &out, std::string what, int minV, int maxV) {
+  try {
+    out = std::stoi(str);
+  }
+  catch (std::invalid_argument &x) {
+    std::cerr << "Error: " + what + " must be a nonnegative integer" << std::endl;
+    return false;
+  }
+  catch (std::out_of_range &x) {
+    std::cerr << "Error: " + what + " is out of integer range" << std::endl;
+    return false;
+  }
+  if (out > maxV) {
+    std::cerr << "Error: " + what + " must be <= " + std::to_string(maxV) << std::endl;
+    return false;
+  }
+  if (out < minV) {
+    std::cerr << "Error: " + what + " must be >= " + std::to_string(minV) << std::endl;
+    return false;
+  }
+  return true;
 }
 
 bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
@@ -25,8 +49,8 @@ bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
       else if (strcmp(argv[i], "-parlvl") == 0 || strcmp(argv[i], "--parallel-level") == 0) {
         if (i+1 < argc) {
           i += 1;
-          char *nouse;
-          parallelLevel = strtol(argv[i], &nouse, 10);
+          if (!mystoi(argv[i], parallelLevel, "parallel level", 0, 1000))
+            return false;
         }
       }
       else if (strcmp(argv[i], "--") == 0) {

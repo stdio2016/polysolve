@@ -59,6 +59,11 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     
     #pragma omp for schedule(static, 1) reduction(+:numSolution)
     for (int i = 0; i < subproblems.size(); i++) {
+      if (subproblems[i].size() != args.parallelLevel) {
+        numSolution += 1;
+        continue;
+      }
+      
       // set up subproblem
       for (int j = 0; j < args.parallelLevel; j++)
         removedRowCount[j] = puzzle.enterBranch(subproblems[i][j]);
