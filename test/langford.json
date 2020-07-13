@@ -1,0 +1,46 @@
+{
+  "description": "Langford pairing N=12",
+  "grid": "square",
+  "board": {
+    "tiles": [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  },
+  "shapes": [
+    {
+      "morphs": [{"coords": [[0], [2]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [3]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [4]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [5]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [6]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [7]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [8]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [9]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [10]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [11]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [12]]}]
+    },
+    {
+      "morphs": [{"coords": [[0], [13]]}]
+    }
+  ],
+  "note": "I use only one dimension of square grid."
+}
