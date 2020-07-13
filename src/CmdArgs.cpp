@@ -85,7 +85,35 @@ void CmdArgs::showHelp(void) {
 }
 
 void CmdArgs::showVersion(void) {
-  std::cout << "polysolve Version 0.0" << std::endl;
+  std::cout << "polysolve Version 0.1" << std::endl;
+  std::cout << "Compiled with " <<
+#ifdef __NVCC__
+    "NVCC " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__ << " "
+#endif
+
+#ifdef __clang__
+    "Clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+#elif defined(__GNUC__)
+    "GCC " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
+#elif defined(_MSC_FULL_VER)
+    "MSVC " << _MSC_FULL_VER;
+#else
+    "unknown compiler";
+#endif
+
+  std::cout << " for " <<
+#ifdef _WIN32
+    "Windows"
+#elif defined(__linux__)
+    "Linux"
+#elif defined(__APPLE__)
+    "macOS"
+#elif defined(__unix__)
+    "Unix-like"
+#else
+    "unknown"
+#endif
+  << " platform." << std::endl;
 }
 
 void CmdArgs::showUsage(std::string name) {
