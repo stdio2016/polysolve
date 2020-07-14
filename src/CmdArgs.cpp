@@ -16,7 +16,7 @@ static int mystoi(std::string str, int &out, std::string what, int minV, int max
     out = std::stoi(str);
   }
   catch (std::invalid_argument &x) {
-    std::cerr << "Error: " + what + " must be a nonnegative integer" << std::endl;
+    std::cerr << "Error: " + what + " must be an integer" << std::endl;
     return false;
   }
   catch (std::out_of_range &x) {
