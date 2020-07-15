@@ -1,0 +1,16 @@
+# executable/object file
+*.exe
+*.exp
+*.lib
+*.obj
+*.pdb
+
+*.out
+*.o
+polysolve
+
+# profiling file
+*.nsight-cuprof-report
+
+# python cache
+__pycache__
