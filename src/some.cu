@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cuda.h>
 #include <vector>
 __global__ void somecuda(int n, float *gg) {
   int tid=blockDim.x*blockIdx.x+threadIdx.x;
@@ -10,40 +9,27 @@ __global__ void somecuda(int n, float *gg) {
 
 struct preCudaInit {
   int numDevices;
-  std::vector<CUcontext> ctx;
+  std::vector<int> devices;
   preCudaInit() {
     numDevices = 0;
-    if (cuInit(0) != CUDA_SUCCESS)
-      std::cerr << "Error: CUDA initialization failed." << std::endl;
-    else if (cuDeviceGetCount(&numDevices) != CUDA_SUCCESS) 
+    if (cudaGetDeviceCount(&numDevices) != cudaSuccess) 
       std::cerr << "Error: Cannot get device count." << '\n';
     else {
-      ctx.resize(numDevices);
       for (int i = 0; i < numDevices; i++) {
-        CUdevice dev;
-        CUdeviceptr ptr;
-        if (cuDeviceGet(&dev, i) != CUDA_SUCCESS)
-          std::cerr << "Error: Cannot get device " << i << "." << std::endl;
-        else if (cuCtxCreate(&ctx[i], 0, dev) != CUDA_SUCCESS)
-          std::cerr << "Error: CUDA context creation failed." << std::endl;
-        else if (cuMemAlloc(&ptr, 100) != CUDA_SUCCESS)
-          std::cerr << "Error: Cannot allocate memory with CUDA Driver API." << std::endl;
-        else if (cuMemFree(ptr) != CUDA_SUCCESS)
-          std::cerr << "Error: Cannot deallocate memory with CUDA Driver API." << std::endl;
+        if (cudaSetDevice(i) != cudaSuccess)
+          std::cerr << "Error: Cannot switch to device " << i << ".\n";
+        else if (cudaFreeArray(nullptr) != cudaSuccess)
+          std::cerr << "Error: CUDA context initialization on device " << i << " failed.\n";
+        else
+          devices.push_back(i);
       }
     }
   }
   ~preCudaInit() {
-    for (int i = 0; i < numDevices; i++) {
-      CUdevice dev;
-      if (cuDeviceGet(&dev, 0) != CUDA_SUCCESS)
-        std::cerr << "Error: Cannot get device " << i << "." << std::endl;
-      else if (cuCtxDestroy(ctx[i]) != CUDA_SUCCESS)
-        std::cerr << "Error: CUDA finalization failed." << std::endl;
-    }
+    ;
   }
 };
-static preCudaInit cucu;
+preCudaInit cucu;
 
 void ss() {
   int *leak;

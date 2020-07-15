@@ -109,8 +109,10 @@ int main(int argc, char *argv[]) {
   int lastError = 1;
   std::cout << std::fixed;
   for (std::string filename : args.filenames) {
+    #ifdef USE_GPU
     extern void ss();
     ss();
+    #endif
     lastError = 0;
     if (args.info) {
       std::cout << "FILE=" << filename << "\n";

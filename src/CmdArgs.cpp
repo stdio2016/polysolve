@@ -114,6 +114,12 @@ void CmdArgs::showVersion(void) {
     "unknown"
 #endif
   << " platform." << std::endl;
+
+#ifdef USE_GPU
+  std::cout << "GPU support: TODO" << std::endl;
+#else
+  std::cout << "GPU support: No" << std::endl;
+#endif
 }
 
 void CmdArgs::showUsage(std::string name) {

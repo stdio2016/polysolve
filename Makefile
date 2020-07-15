@@ -1,6 +1,8 @@
 CXX ?= clang++
+CLL ?= cl
+NVCC ?= nvcc
 CUDA_PATH ?= /usr/local/cuda-10.0/
-OPENMP_PATH = 
+OPENMP_PATH = .
 
 ifeq ($(OS),Windows_NT)
 	FOPENMP += /openmp
@@ -9,28 +11,38 @@ else
 	FOPENMP += -fopenmp
 endif
 
+LDFLAGS += -fopenmp -L $(OPENMP_PATH)
+ifeq ($(USE_GPU),yes)
 ifeq ($(OS),Windows_NT)
-	LDFLAGS += -fopenmp -L "$(CUDA_PATH)/lib/x64"
+	LDFLAGS += -L "$(CUDA_PATH)/lib/x64"
 	LIBS += -lcuda -lcudadevrt -lcudart_static
 else
-	LDFLAGS += -fopenmp -L $(OPENMP_PATH) -L "$(CUDA_PATH)/lib64/stubs" -L "$(CUDA_PATH)/lib64"
+	LDFLAGS += -L "$(CUDA_PATH)/lib64/stubs" -L "$(CUDA_PATH)/lib64"
 	LIBS += -lcuda -lcudadevrt -lcudart_static -lrt -ldl
 endif
+endif
 
-CXXFLAGS += -O3 -fopenmp -c -I include -I /usr/lib/gcc/x86_64-linux-gnu/7/include -g
-CUFLAGS += --cuda-path="$(CUDA_PATH)" --cuda-gpu-arch=sm_30 -O3 -I include
+CPPFLAGS += -I include -I /usr/lib/gcc/x86_64-linux-gnu/7/include
+CXXFLAGS += -O3 -fopenmp -g
+CUFLAGS += --cuda-path="$(CUDA_PATH)" --cuda-gpu-arch=sm_30 -O3 -g
+NVCCFLAGS += -Xcompiler $(FOPENMP) -O3 -lineinfo -g
+CLFLAGS += /O2 /EHsc /openmp
 
 SOURCES := $(wildcard src/*.cpp)
 CU_SOURCES := $(wildcard src/*.cu)
+ifeq ($(USE_GPU),yes)
+	CPPFLAGS += -DUSE_GPU=1
+	CUcu_SOURCES :=$(CU_SOURCES)
+endif
 
-polysolve$(.EXE): $(SOURCES:%.cpp=%.o) $(CU_SOURCES:%.cu=%.o)
+polysolve$(.EXE): $(SOURCES:%.cpp=%.o) $(CUcu_SOURCES:%.cu=%.o)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 src/%.o: src/%.cpp Makefile $(wildcard src/*.hpp)
-	$(CXX) $(CXXFLAGS) $< -c -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -c -o $@
 
 src/some.o: src/some.cu Makefile $(wildcard src/*.hpp)
-	$(CXX) $(CUFLAGS) $< -c -o $@
+	$(CXX) $(CPPFLAGS) $(CUFLAGS) $< -c -o $@
 
 .PHONY: clean
 clean:
@@ -40,5 +52,10 @@ clean:
 	-rm polysolve
 
 .PHONY: nvcc
+nvcc: CPPFLAGS += -DUSE_GPU=1
 nvcc: $(SOURCES) $(CU_SOURCES)
-	$(CXX) -O3 -I include -Xcompiler $(FOPENMP) $^ -o polysolve -lcuda
+	$(NVCC) $(CPPFLAGS) $(NVCCFLAGS) $^ -o polysolve -lcuda
+
+.PHONY: cl
+cl: $(SOURCES)
+	$(CLL) $(CPPFLAGS) $(CLFLAGS) /Fepolysolve $^
