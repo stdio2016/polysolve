@@ -49,6 +49,9 @@ public:
   int targetLevel;
   int numSolution;
   std::vector<std::vector<int>> solutions;
+  int numRows;
+  long long attempts;
+  long long dlxCounter;
 
 private:
   std::vector<DlxCell *> removedRows;

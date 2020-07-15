@@ -118,6 +118,7 @@ void Puzzle::buildDlxColumns() {
       right->left = left;
     }
   }
+  numRows = dlx.rows.size();
 }
 
 void Puzzle::buildDlxCells() {
@@ -253,19 +254,21 @@ void Puzzle::dlxSolveRecursive(int lv) {
     solutions.push_back(solutionStack);
     return ;
   }
+  attempts += 1;
   DlxCell *ptr = col->down;
   int removeCount = col->size;
   while (ptr != col) {
     solutionStack.push_back(ptr->row - &dlx.rows[0]);
-    ptr->cover();
+    numRows -= ptr->cover(dlxCounter);
     dlxSolveRecursive(lv + 1);
-    ptr->uncover();
+    numRows += ptr->uncover();
     solutionStack.pop_back();
     removedRows.push_back(ptr);
     ptr = ptr->down;
   }
   for (int i = removeCount - 1; i >= 0; i--) {
     removedRows.back()->relinkRow<true>();
+    numRows += 1;
     removedRows.pop_back();
   }
 }
@@ -282,12 +285,12 @@ int Puzzle::enterBranch(int row) {
   n = c->down;
   while (n->row != &dlx.rows[row]) {
     removedRows.push_back(n);
-    n->unlinkRow<true>();
+    n->unlinkRow<true>(dlxCounter);
     n = n->down;
     removedRowCount += 1;
   }
   removedRows.push_back(n);
-  n->cover();
+  numRows -= n->cover(dlxCounter) + removedRowCount;
   return removedRowCount;
 }
 
@@ -298,7 +301,7 @@ void Puzzle::leaveBranch(int removedRowCount) {
   removedRows.pop_back();
 
   // recover
-  n->uncover();
+  numRows += n->uncover() + removedRowCount + 1;
   n->relinkRow<true>();
 
   while (removedRowCount > 0) {

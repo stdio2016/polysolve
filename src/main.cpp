@@ -40,6 +40,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   std::cout << "create subproblem time=" << tm1.getRunTime() << "ms"<<std::endl;
   int numSolution = 0;
   puzzle.targetLevel = -1;  // reset search tree depth
+  puzzle.attempts = 0;
   puzzle.solutions.clear();
   #pragma omp parallel firstprivate(puzzle, tm1)
   {
@@ -50,6 +51,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     
     #pragma omp for schedule(dynamic, 1) reduction(+:numSolution)
     for (int i = 0; i < subproblems.size(); i++) {
+      puzzle.dlxCounter = 0;
       if (subproblems[i].size() != args.parallelLevel) {
         numSolution += 1;
         continue;
@@ -59,6 +61,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
       for (int j = 0; j < args.parallelLevel; j++)
         removedRowCount[j] = puzzle.enterBranch(subproblems[i][j]);
       
+      int nRows = puzzle.numRows;
       puzzle.dlxSolve();
       
       // reset data structure
@@ -69,8 +72,14 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
       
       if (args.info) {
         #pragma omp critical
-        std::cout << "thread "<<omp_get_thread_num()<<" solve in " << tm1.getRunTime() << "ms" << std::endl;
+        std::cout << "thread "<<omp_get_thread_num()<<" solve in " << tm1.getRunTime() << "ms "
+          << nRows << " rows "
+          << puzzle.numSolution << " solution "
+          << puzzle.attempts << " attempts "
+          << puzzle.dlxCounter << " unlinks"
+          << std::endl;
       }
+      puzzle.attempts = 0;
     }
   }
   std::cout << "number of solutions = " << numSolution << '\n';

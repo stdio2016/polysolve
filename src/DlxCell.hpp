@@ -16,13 +16,13 @@ struct DlxCell {
   DlxColumn *column;
   DlxRow *row;
   
-  template<int includeSelf=0> void unlinkRow();
+  template<int includeSelf=0> void unlinkRow(long long &unlinkCount);
   template<int includeSelf=0> void relinkRow();
   
   void setDown(DlxCell *n);
   
-  void cover();
-  void uncover();
+  int cover(long long &unlinkCount);
+  int uncover();
 };
 
 struct DlxRow {
@@ -52,16 +52,19 @@ inline void DlxCell::setDown(DlxCell *n) {
 }
 
 template <int includeSelf>
-inline void DlxCell::unlinkRow() {
+inline void DlxCell::unlinkRow(long long &unlinkCount) {
   //printf("unlink %d\n", n->row);
   DlxCell *n = includeSelf ? this : this->right;
 
+  int cnt = 0;
   do {
+    cnt += 1;
     n->up->down = n->down;
     n->down->up = n->up;
     n->column->size -= 1;
     n = n->right;
   } while (n != this) ;
+  unlinkCount += cnt;
 }
 
 template <int includeSelf>
@@ -77,35 +80,40 @@ inline void DlxCell::relinkRow() {
   } while (n != this) ;
 }
 
-inline void DlxCell::cover() {
+inline int DlxCell::cover(long long &unlinkCount) {
   //printf("cover %d\n", n->row);
   DlxCell *n2, *n3;
   DlxColumn *c2;
-  this->unlinkRow<true>();
+  this->unlinkRow<true>(unlinkCount);
   n2 = this;
+  int nrow = 0;
   do {
     c2 = n2->column;
     c2->value += 1;
     if (c2->value == c2->minValue) {
       c2->left->right = c2->right;
       c2->right->left = c2->left;
+      unlinkCount += 1;
     }
     if (c2->value == c2->maxValue) {
       n3 = c2->down;
       while (n3 != c2) {
-        n3->unlinkRow();
+        n3->unlinkRow(unlinkCount);
+        nrow += 1;
         n3 = n3->down;
       }
     }
     n2 = n2->right;
   } while (n2 != this) ;
+  return nrow + 1;
 }
 
-inline void DlxCell::uncover() {
+inline int DlxCell::uncover() {
   //printf("uncover %d\n", n->row);
   DlxCell *n2, *n3;
   DlxColumn *c2;
   n2 = this;
+  int nrow = 0;
   do {
     n2 = n2->left;
     c2 = n2->column;
@@ -113,6 +121,7 @@ inline void DlxCell::uncover() {
       n3 = c2->up;
       while (n3 != c2) {
         n3->relinkRow();
+        nrow += 1;
         n3 = n3->up;
       }
     }
@@ -122,6 +131,7 @@ inline void DlxCell::uncover() {
     }
     c2->value -= 1;
   } while (n2 != this) ;
+  return nrow;
 }
 
 #endif
