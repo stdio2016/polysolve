@@ -27,15 +27,6 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   for (Polyomino &po : puzzle.polyominoes) {
     i += 1;
     po.generateTransforms(puzzle.grid);
-    if (args.info) { 
-      std::cout << "polyomino #" << i << '\n';
-      for (Shape sh : po.transforms) {
-        for (Coord c : sh.coords) {
-          std::cout << "("<<c.x<<","<<c.y<<","<<c.z<<")";
-        }
-        std::cout <<" morph="<<sh.morph<<" orient="<<sh.orient << '\n';
-      }
-    }
   }
   puzzle.board.sortCoords();
   puzzle.buildDlxRows();

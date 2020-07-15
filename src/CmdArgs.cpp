@@ -8,7 +8,7 @@ void CmdArgs::setDefault(void) {
   ver = false;
   info = false;
   parallelLevel = 0;
-  numThreads = 0;
+  numThreads = 1;
 }
 
 static int mystoi(std::string str, int &out, std::string what, int minV, int maxV) {
@@ -38,7 +38,7 @@ bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
   this->setDefault();
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-') {
-      if (strcmp(argv[i], "--help") == 0) {
+      if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
         help = true;
       }
       else if (strcmp(argv[i], "--version") == 0) {
@@ -122,8 +122,62 @@ void CmdArgs::showVersion(void) {
 #endif
 }
 
+void printHelp(std::string str) {
+  int col = 6, first = true;
+  int tab = 6;
+  for (int i = 0; i < str.size(); i++) {
+    int end = i;
+    while (end < str.size() && str[end] > ' ') {
+      end += 1;
+    }
+    std::string word(&str[i], &str[end]);
+    if (col + word.size() >= 80) {
+      std::cout << std::endl;
+      first = true;
+      col = tab;
+    }
+    if (first) {
+      first = false;
+      std::cout << "      ";
+    }
+    else std::cout.put(' ');
+    std::cout << word;
+    col += 1 + word.size();
+    i = end;
+    if (end < str.size()) {
+      if (str[end] == '\n') {
+        std::cout << std::endl;
+        first = true;
+        col = tab = 6;
+      }
+      if (str[end] == '\t') {
+        tab = col;
+      }
+    }
+  }
+}
+
 void CmdArgs::showUsage(std::string name) {
   if (name.empty()) name = "./polysolve";
+  std::cout << "A program to solve polyomino puzzle with multithreading." << '\n';
+  std::cout << '\n';
   std::cout << "Usage: " << name << " [options]" << " puzzlefile"
             << std::endl;
+  std::cout << std::endl;
+  std::cout << "Options:" << '\n';
+  std::cout << "  --help (-h)" << '\n';
+  printHelp("Display available options\n");
+  std::cout << "  --version" << '\n';
+  printHelp("Display version information\n");
+  std::cout << "  --info (-i)" << '\n';
+  printHelp("Display performance measurements\n");
+  std::cout << "  --parallel-level <value> (-pl)" << '\n';
+  printHelp("Set the number of pieces to place when generating subproblems. "
+    "A setting of 0 will disable multithreading. "
+    "The default value is 0.\n");
+  std::cout << "  --num-threads <value> (-nt)" << '\n';
+  printHelp("Set the number of threads for multi-thread solving. "
+    "A setting of 1 disables multithreading, "
+    "and a setting of 0 will use all CPU cores in this computer. "
+    "The default value is 1.\n");
 }
