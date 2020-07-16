@@ -1,0 +1,40 @@
+{
+  "grid": "cube",
+  "board": {
+    "tiles": [
+      [[1,1,1],[1,1,1],[1,1,1]],
+      [[1,1,1],[1,1,1],[1,1,1]],
+      [[1,1,1],[1,1,1],[1,1,1]]
+    ]
+  },
+  "shapes": [
+    {
+      "mobility": "rotate",
+      "morphs": [{"tiles": [[1,1], [1,0]]}]
+    },
+    {
+      "mobility": "rotate",
+      "morphs": [{"tiles": [[1,1,1], [1,0,0]]}]
+    },
+    {
+      "mobility": "rotate",
+      "morphs": [{"tiles": [[1,1,1], [0,1,0]]}]
+    },
+    {
+      "mobility": "rotate",
+      "morphs": [{"tiles": [[1,1,0], [0,1,1]]}]
+    },
+    {
+      "mobility": "rotate",
+      "morphs": [{"tiles": [[[1,1],[1,0]], [[1,0],[0,0]]]}]
+    },
+    {
+      "mobility": "rotate",
+      "morphs": [{"tiles": [[[1,1],[1,0]], [[0,1],[0,0]]]}]
+    },
+    {
+      "mobility": "rotate",
+      "morphs": [{"tiles": [[[1,1],[1,0]], [[0,0],[1,0]]]}]
+    }
+  ]
+}
