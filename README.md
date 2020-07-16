@@ -10,11 +10,21 @@ This program utilizes many C++11 features, so you need a C++11 compiler. If you 
 g++ -O3 -std=c++11 -fopenmp -o polysolve -I include src/*.cpp
 ```
 
+You need MinGW-w64 build of GCC to compile with GCC on Windows.
+
 Or if you are using Visual Studio 2015,
 
 ```Batchfile
 cl /O2 /EHsc /openmp /Fepolysolve -I include src/*.cpp
 ```
+
+Compile with makefile:
+
+* GCC: `make CXX=g++`
+* Clang: `make CXX=clang++`
+* Clang with GPU: `make CXX=clang++ USE_GPU=yes`
+* MSVC: `make cl CLL=cl`
+* NVCC: `make nvcc NVCC=nvcc CUDA_PATH=<cuda path>`
 
 ## Puzzle file
 

@@ -1,4 +1,4 @@
-CXX ?= clang++
+CXX ?= g++
 CLL ?= cl
 NVCC ?= nvcc
 CUDA_PATH ?= /usr/local/cuda-10.0/
@@ -46,10 +46,9 @@ src/some.o: src/some.cu Makefile $(wildcard src/*.hpp)
 
 .PHONY: clean
 clean:
-	-rm src/*.o
-	-rm src/*.o2
-	-rm polysolve.exe
-	-rm polysolve
+	-rm src/*.o *.obj
+	-rm polysolve.exe polysolve
+	-rm polysolve.lib polysolve.exp *.pdb
 
 .PHONY: nvcc
 nvcc: CPPFLAGS += -DUSE_GPU=1
