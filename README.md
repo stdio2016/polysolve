@@ -28,7 +28,34 @@ Compile with makefile:
 
 ## Puzzle file
 
-Puzzle file is a JSON format file. **TODO**: describe file structure.
+Puzzle file is a JSON format file. The top level is an object with the following keys.
+
+* **description**: A string. Description of a puzzle. Optional.
+* **grid**: Grid type of the puzzle. Can be one of the following: `square`, `cube`, `triangle`, `hexagon`, and `tan`. Required.
+* **board**: A [shape object](#shape-object) describing board shape. Required.
+* **shapes**: An array of puzzle pieces. Requires at least one item.
+    - **name**: A string. Name of a piece. Optional.
+    - **mobility**: Allowed movements of this piece. Can be one of the following: `mirror`, `rotate`, `translate` and `stationary`. Default to `rotate`.
+        + mirror: The piece can be flipped and rotated.
+        + rotate: The piece can be rotated, but cannot be flipped.
+        + translate: The piece can be moved, but cannot be rotated.
+        + stationary: The piece cannot be moved at all.
+    - **amount**: An integer or an object.
+    Default value is `1`.
+    When it is an object, it has two keys:
+        + **min**: Minimum amount
+        + **max**: Maximum amount
+    - **morphs**: An array of [shape objects](#shape-object) describing possible shapes of a piece. Requires at least one item.
+* **notes**: A string. Notes of a puzzle. Optional.
+
+### Shape object
+Shape object is a JSON object with either of the two keys: `coords` and `tiles`.
+
+* **coords**: An array of [coordinate tuples](#coordinate-tuple).
+* **tiles**: A multi-dimensional array of 0/1 describing the tiles of grid. 0 means absent, 1 means present. The innermost dimension is x axis.
+
+### Coordinate tuple
+Coordinate tuple is an array of 1 to 4 integers.
 
 ## Converter
 
