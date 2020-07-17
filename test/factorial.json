@@ -1,0 +1,21 @@
+{
+  "description": "Solution count grows in O(n!)",
+  "notes": "Warning! Solving this puzzle requires around 3GB of memory.",
+  "grid": "square",
+  "board": {
+    "tiles": [1,1,1,1,1,1,1,1,1,1,1]
+  },
+  "shapes": [
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]},
+    {"morphs": [{"tiles": [1]}]}
+  ]
+}
