@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <exception>
+#include <random>
 #include <omp.h>
 #include "CmdArgs.hpp"
 #include "PuzzleReader.hpp"
@@ -42,17 +43,24 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   puzzle.targetLevel = -1;  // reset search tree depth
   puzzle.attempts = 0;
   puzzle.solutions.clear();
+  puzzle.numSolution = 0;
+  int numThreads = omp_get_max_threads();
+  std::vector<int> prefixSum(numThreads);
+  std::vector<int> oneSolution;
+  int rndChoose;
   #pragma omp parallel firstprivate(puzzle, tm1)
   {
     #pragma omp master
     std::cout << "copy time=" << tm1.getRunTime() << "ms"<<std::endl;
     
     std::vector<int> removedRowCount(args.parallelLevel);
+    int tid = omp_get_thread_num();
     
     #pragma omp for schedule(dynamic, 1) reduction(+:numSolution)
     for (int i = 0; i < subproblems.size(); i++) {
       puzzle.dlxCounter = 0;
       if (subproblems[i].size() != args.parallelLevel) {
+        puzzle.solutions.push_back(subproblems[i]);
         numSolution += 1;
         continue;
       }
@@ -81,8 +89,53 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
       }
       puzzle.attempts = 0;
     }
+    
+    // pick up a random solution
+    prefixSum[tid] = puzzle.solutions.size();
+    if (numSolution > 0) {
+      #pragma omp barrier
+      {}
+      #pragma omp single
+      {
+        for (int i = 1; i < numThreads; i++) {
+          prefixSum[i] += prefixSum[i-1];
+        }
+        for (int i = numThreads-1; i > 0; i--) {
+          prefixSum[i] = prefixSum[i-1];
+        }
+        prefixSum[0] = 0;
+        std::random_device rd;
+        std::default_random_engine gen = std::default_random_engine(rd());
+        std::uniform_int_distribution<int> dis(1, numSolution);
+        rndChoose = dis(gen) - 1;
+      }
+      // only one thread will enter this if, so no need to use omp critical
+      if (rndChoose >= prefixSum[tid] && rndChoose < prefixSum[tid] + puzzle.solutions.size()) {
+        oneSolution = puzzle.solutions[rndChoose - prefixSum[tid]];
+      }
+    }
   }
   std::cout << "number of solutions = " << numSolution << '\n';
+  std::map<Coord, std::pair<int, int> > solve;
+  std::vector<int> numPoly(puzzle.polyominoes.size());
+  for (int i = 0; i < oneSolution.size(); i++) {
+    int rowid = oneSolution[i];
+    DlxRow row = puzzle.dlx.rows[rowid];
+    int id = row.polyomino;
+    int polymul = ++numPoly[id];
+    std::pair<int, int> thispiece = {id+1, polymul};
+    for (Coord coord : puzzle.polyominoes[id].transforms[row.transform].coords) {
+      Coord pos = coord + row.position;
+      solve[pos] = thispiece;
+    }
+  }
+  // print solution
+  for (auto cp : solve) {
+    Coord c = cp.first;
+    auto pid = cp.second;
+    std::cout <<'('<<c.x<<','<<c.y<<','<<c.z<<','<<c.w<<')'<<" : piece "
+    <<pid.first<<" #"<<pid.second<< '\n';
+  }
   std::cout << "solve time=" << tm1.getRunTime() << "ms"<<std::endl;
   return 0;
 }
