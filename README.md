@@ -1,6 +1,6 @@
 # polysolve
 
-A program to solve polyomino puzzle with multithreading. It is still a work in progress.
+A program to solve polyomino puzzle with multithreading. Currently it only uses CPU, but I plan to add GPU acceleration support.
 
 ## Build
 
@@ -22,9 +22,9 @@ Compile with makefile:
 
 * GCC: `make CXX=g++`
 * Clang: `make CXX=clang++`
-* Clang with GPU: `make CXX=clang++ USE_GPU=yes`
+* ~~Clang with GPU: `make CXX=clang++ USE_GPU=yes`~~
 * MSVC: `make cl CLL=cl`
-* NVCC: `make nvcc NVCC=nvcc CUDA_PATH=<cuda path>`
+* ~~NVCC: `make nvcc NVCC=nvcc CUDA_PATH=<cuda path>`~~ 
 
 ## Puzzle file
 
@@ -78,3 +78,12 @@ python3 converter/polysolver.py $IN_FILE > $OUT_FILE
 ```
 
 Currently only the following grid types are supported: Square, Cube, Triangle, Hexagon, and Tan.
+
+## Missing features
+* Place some pieces on the board before solving, to set up a puzzle problem, or to solve a puzzle partially.
+* Add tiles to fill the board, when the pieces cannot cover the whole board.
+
+## Future work
+* Support more grid types from other puzzle solvers.
+* Using bit mask to accelerate solving.
+* GPU acceleration with CUDA/ROCm
