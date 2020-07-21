@@ -116,25 +116,31 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     }
   }
   std::cout << "number of solutions = " << numSolution << '\n';
-  std::map<Coord, std::pair<int, int> > solve;
+  // sort pieces
+  std::map<std::pair<int, int>, int> pieceMap;
   std::vector<int> numPoly(puzzle.polyominoes.size());
   for (int i = 0; i < oneSolution.size(); i++) {
     int rowid = oneSolution[i];
     DlxRow row = puzzle.dlx.rows[rowid];
     int id = row.polyomino;
     int polymul = ++numPoly[id];
-    std::pair<int, int> thispiece = {id+1, polymul};
-    for (Coord coord : puzzle.polyominoes[id].transforms[row.transform].coords) {
-      Coord pos = coord + row.position;
-      solve[pos] = thispiece;
-    }
+    std::pair<int, int> thispiece = {id, polymul};
+    pieceMap[thispiece] = i;
   }
   // print solution
-  for (auto cp : solve) {
-    Coord c = cp.first;
-    auto pid = cp.second;
-    std::cout <<'('<<c.x<<','<<c.y<<','<<c.z<<','<<c.w<<')'<<" : piece "
-    <<pid.first<<" #"<<pid.second<< '\n';
+  for (auto cp : pieceMap) {
+    auto pid = cp.first;
+    int i = cp.second;
+    DlxRow row = puzzle.dlx.rows[i];
+    std::cout << "piece " << pid.first+1 << " #" << pid.second << ":";
+    Shape sh = puzzle.polyominoes[pid.first].transforms[row.transform];
+    sh.sortCoords();
+    for (Coord coord : sh.coords) {
+      Coord pos = coord + row.position;
+      std::cout << " (" << pos.x << "," << pos.y << "," << pos.z << "," << pos.w
+        << ")";
+    }
+    std::cout << '\n';
   }
   std::cout << "solve time=" << tm1.getRunTime() << "ms"<<std::endl;
   return 0;
