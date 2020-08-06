@@ -221,6 +221,12 @@ DlxColumn *Puzzle::minfit() {
   DlxColumn *root = &dlx.columns[0];
   DlxColumn *c = root->getRight();
   int minfit = c->size;
+  if (c->value + c->size < c->minValue) {
+    return nullptr;
+  }
+  /*if (solutionStack.size() > 1 && minfit > 2) {
+    minfit = 2;
+  }*/
   for (DlxColumn *col = c->getRight();
       col != root; col = col->getRight()) {
     int value = col->value;
@@ -242,10 +248,11 @@ void Puzzle::dlxSolve() {
   numSolution = 0;
   removedRows.reserve(dlx.rows.size());
   solutionStack.reserve(dlx.rows.size());
-  dlxSolveRecursive(0);
+  dlxSolveRecursive(solutionStack.size());
 }
 
 void Puzzle::dlxSolveRecursive(int lv) {
+  attempts += 1;
   DlxColumn *root = &dlx.columns[0];
   DlxColumn *col = minfit();
   if (!col) return; //unsatisfiable
@@ -254,7 +261,6 @@ void Puzzle::dlxSolveRecursive(int lv) {
     solutions.push_back(solutionStack);
     return ;
   }
-  attempts += 1;
   DlxCell *ptr = col->down;
   int removeCount = col->size;
   while (ptr != col) {
@@ -274,8 +280,8 @@ void Puzzle::dlxSolveRecursive(int lv) {
 }
 
 int Puzzle::enterBranch(int row) {
-  solutionStack.push_back(row);
   DlxColumn *c = minfit();
+  solutionStack.push_back(row);
   DlxCell *n;
   int removedRowCount = 0;
   if (c == nullptr) {
@@ -288,6 +294,10 @@ int Puzzle::enterBranch(int row) {
     n->unlinkRow<true>(dlxCounter);
     n = n->down;
     removedRowCount += 1;
+    if (removedRowCount > dlx.rows.size()) {
+      std::cerr << "row " << row << " not found" << '\n';
+      return -1;
+    }
   }
   removedRows.push_back(n);
   numRows -= n->cover(dlxCounter) + removedRowCount;
