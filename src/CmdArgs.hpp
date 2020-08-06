@@ -13,6 +13,7 @@ public:
   bool help;
   bool ver;
   int info;
+  int percent;
   int parallelLevel;
   int numThreads;
   

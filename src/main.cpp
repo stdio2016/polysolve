@@ -3,6 +3,7 @@
 #include <exception>
 #include <random>
 #include <omp.h>
+#include <cmath>
 #include "CmdArgs.hpp"
 #include "PuzzleReader.hpp"
 #include "Timing.hpp"
@@ -48,9 +49,18 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   std::vector<int> prefixSum(numThreads);
   std::vector<int> oneSolution;
   int rndChoose;
+  int percent = 0, complete = 0;
+  std::default_random_engine gen = std::default_random_engine(1234);
+  for (int i = 1; i < subproblems.size(); i++) {
+    std::uniform_int_distribution<int> dis(0, i);
+    int r = dis(gen);
+    if (r != i) std::swap(subproblems[i], subproblems[r]);
+  }
+  Timing timeall;
   #pragma omp parallel firstprivate(puzzle, tm1)
   {
     #pragma omp master
+    if (!args.percent)
     std::cout << "copy time=" << tm1.getRunTime() << "ms"<<std::endl;
     
     std::vector<int> removedRowCount(args.parallelLevel);
@@ -77,15 +87,28 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
         puzzle.leaveBranch(removedRowCount[j-1]);
       
       numSolution += puzzle.numSolution;
-      
+      double runtime = tm1.getRunTime();
       if (args.info) {
         #pragma omp critical
-        std::cout << "thread "<<omp_get_thread_num()<<" solve in " << tm1.getRunTime() << "ms "
+        std::cout << "thread "<<omp_get_thread_num()<<" solve in " << runtime << "ms "
           << nRows << " rows "
           << puzzle.numSolution << " solution "
           << puzzle.attempts << " attempts "
           << puzzle.dlxCounter << " unlinks"
           << std::endl;
+      }
+      if (args.percent) {
+        #pragma omp critical
+        {
+          complete += 1;
+          int finish = complete * 100.0 / subproblems.size();
+          if (finish > percent) {
+            double t = timeall.getRunTime(true);
+            std::cerr << "progress: " <<finish << "% remaining time: " << t * 0.1 / finish - t * 0.001 << "s";
+            std::cerr << std::string(15, ' ') << "\r";
+            percent = finish;
+          }
+        }
       }
       puzzle.attempts = 0;
     }
@@ -115,6 +138,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
       }
     }
   }
+  if (args.percent) std::cerr << std::string(70, ' ') << "\r";
   std::cout << "number of solutions = " << numSolution << '\n';
   // sort pieces
   std::map<std::pair<int, int>, int> pieceMap;

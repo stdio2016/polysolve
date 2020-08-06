@@ -7,6 +7,7 @@ void CmdArgs::setDefault(void) {
   help = false;
   ver = false;
   info = false;
+  percent = false;
   parallelLevel = 0;
   numThreads = 1;
 }
@@ -41,11 +42,14 @@ bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
       if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
         help = true;
       }
-      else if (strcmp(argv[i], "--version") == 0) {
+      else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
         ver = true;
       }
       else if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--info") == 0) {
         info = true;
+      }
+      else if (strcmp(argv[i], "--percent") == 0) {
+        percent = true;
       }
       else if (strcmp(argv[i], "-pl") == 0 || strcmp(argv[i], "--parallel-level") == 0) {
         if (i+1 < argc) {
@@ -171,6 +175,8 @@ void CmdArgs::showUsage(std::string name) {
   printHelp("Display version information\n");
   std::cout << "  --info (-i)" << '\n';
   printHelp("Display performance measurements\n");
+  std::cout << "  --percent" << '\n';
+  printHelp("Display running progress in percentage\n");
   std::cout << "  --parallel-level <value> (-pl)" << '\n';
   printHelp("Set the number of pieces to place when generating subproblems. "
     "A setting of 0 will disable multithreading. "
