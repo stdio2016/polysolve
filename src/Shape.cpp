@@ -29,6 +29,7 @@ std::vector<Coord> Shape::getValidTranslations(int maxTile) const {
   for (Coord &c : all) {
     c.x = 0;
   }
+  std::sort(all.begin(), all.end());
   auto new_end = std::unique(all.begin(), all.end());
   all.resize(new_end - all.begin());
   return all;
