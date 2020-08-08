@@ -262,21 +262,31 @@ void Puzzle::dlxSolveRecursive(int lv) {
     return ;
   }
   DlxCell *ptr = col->down;
+  numRows -= col->cover(dlxCounter);
   int removeCount = col->size;
   while (ptr != col) {
     solutionStack.push_back(ptr->row - &dlx.rows[0]);
-    numRows -= ptr->cover(dlxCounter);
+    DlxCell *c2 = ptr->right;
+    while (c2 != ptr) {
+      numRows -= c2->cover(dlxCounter);
+      c2 = c2->right;
+    }
     dlxSolveRecursive(lv + 1);
-    numRows += ptr->uncover();
+    c2 = ptr->left;
+    while (c2 != ptr) {
+      numRows += c2->uncover();
+      c2 = c2->left;
+    }
     solutionStack.pop_back();
-    removedRows.push_back(ptr);
+    //removedRows.push_back(ptr);
     ptr = ptr->down;
   }
-  for (int i = removeCount - 1; i >= 0; i--) {
+  numRows += col->uncover();
+  /*for (int i = removeCount - 1; i >= 0; i--) {
     removedRows.back()->relinkRow<true>();
     numRows += 1;
     removedRows.pop_back();
-  }
+  }*/
 }
 
 int Puzzle::enterBranch(int row) {
@@ -290,17 +300,22 @@ int Puzzle::enterBranch(int row) {
   }
   n = c->down;
   while (n->row != &dlx.rows[row]) {
-    removedRows.push_back(n);
-    n->unlinkRow<true>(dlxCounter);
+    //removedRows.push_back(n);
+    //n->unlinkRow<true>(dlxCounter);
     n = n->down;
-    removedRowCount += 1;
+    //removedRowCount += 1;
     if (removedRowCount > dlx.rows.size()) {
       std::cerr << "row " << row << " not found" << '\n';
       return -1;
     }
   }
   removedRows.push_back(n);
-  numRows -= n->cover(dlxCounter) + removedRowCount;
+  numRows -= n->cover(dlxCounter);
+  DlxCell *n2 = n->right;
+  while (n2 != n) {
+    numRows -= n2->cover(dlxCounter);
+    n2 = n2->right;
+  }
   return removedRowCount;
 }
 
@@ -311,12 +326,17 @@ void Puzzle::leaveBranch(int removedRowCount) {
   removedRows.pop_back();
 
   // recover
-  numRows += n->uncover() + removedRowCount + 1;
-  n->relinkRow<true>();
+  DlxCell *n2 = n->left;
+  while (n2 != n) {
+    numRows += n2->uncover();
+    n2 = n2->left;
+  }
+  numRows += n->uncover();
+  /*n->relinkRow<true>();
 
   while (removedRowCount > 0) {
     removedRows.back()->relinkRow<true>();
     removedRows.pop_back();
     removedRowCount -= 1;
-  }
+  }*/
 }

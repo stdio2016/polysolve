@@ -84,7 +84,7 @@ inline int DlxCell::cover(long long &unlinkCount) {
   //printf("cover %d\n", n->row);
   DlxCell *n2, *n3;
   DlxColumn *c2;
-  this->unlinkRow<true>(unlinkCount);
+  //this->unlinkRow<true>(unlinkCount);
   n2 = this;
   int nrow = 0;
   do {
@@ -104,8 +104,8 @@ inline int DlxCell::cover(long long &unlinkCount) {
       }
     }
     n2 = n2->right;
-  } while (n2 != this) ;
-  return nrow + 1;
+  } while (false && n2 != this) ;
+  return nrow;
 }
 
 inline int DlxCell::uncover() {
@@ -115,7 +115,7 @@ inline int DlxCell::uncover() {
   n2 = this;
   int nrow = 0;
   do {
-    n2 = n2->left;
+    //n2 = n2->left;
     c2 = n2->column;
     if (c2->value == c2->maxValue) {
       n3 = c2->up;
@@ -130,7 +130,7 @@ inline int DlxCell::uncover() {
       c2->right->left = c2;
     }
     c2->value -= 1;
-  } while (n2 != this) ;
+  } while (false && n2 != this) ;
   return nrow;
 }
 
