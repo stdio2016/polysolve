@@ -1,0 +1,163 @@
+{
+  "description": "Fill 5x18 rectangle with one-sided pentominoes",
+  "grid": "square",
+  "board": {
+    "tiles": [
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ]
+  },
+  "shapes": [
+    {
+      "name": "F",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 1], [0, 2], [1, 0], [1, 1], [2, 1]]}
+      ]
+    },
+    {
+      "name": "F2",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 1], [1, 0], [1, 1], [2, 1], [2, 2]]}
+      ]
+    },
+    {
+      "name": "I",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]]}
+      ]
+    },
+    {
+      "name": "L",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [1, 0], [2, 0], [3, 0], [3, 1]]}
+      ]
+    },
+    {
+      "name": "L2",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [0, 1], [1, 0], [2, 0], [3, 0]]}
+      ]
+    },
+    {
+      "name": "N",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [1, 0], [2, 0], [2, 1], [3, 1]]}
+      ]
+    },
+    {
+      "name": "N2",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 1], [1, 0], [1, 1], [2, 0], [3, 0]]}
+      ]
+    },
+    {
+      "name": "P",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0]]}
+      ]
+    },
+    {
+      "name": "P2",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [1, 0], [1, 1], [2, 0], [2, 1]]}
+      ]
+    },
+    {
+      "name": "T",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [1, 0], [1, 1], [1, 2], [2, 0]]}
+      ]
+    },
+    {
+      "name": "U",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [0, 1], [1, 0], [2, 0], [2, 1]]}
+      ]
+    },
+    {
+      "name": "V",
+      "mobility": "translate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [0, 1], [0, 2], [1, 0], [2, 0]]}
+      ]
+    },
+    {
+      "name": "W",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 1], [0, 2], [1, 0], [1, 1], [2, 0]]}
+      ]
+    },
+    {
+      "name": "X",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 1], [1, 0], [1, 1], [1, 2], [2, 1]]}
+      ]
+    },
+    {
+      "name": "Y",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [1, 0], [2, 0], [2, 1], [3, 0]]}
+      ]
+    },
+    {
+      "name": "Y2",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [1, 0], [1, 1], [2, 0], [3, 0]]}
+      ]
+    },
+    {
+      "name": "Z",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 0], [1, 0], [1, 1], [1, 2], [2, 2]]}
+      ]
+    },
+    {
+      "name": "Z2",
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 1},
+      "morphs": [
+        {"coords": [[0, 2], [1, 0], [1, 1], [1, 2], [2, 0]]}
+      ]
+    }
+  ],
+  "placement": [
+  ],
+  "mode": "fillall",
+  "notes": "Actually, I created this test on 2020/8/6"
+}
