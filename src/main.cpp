@@ -56,6 +56,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     int r = dis(gen);
     if (r != i) std::swap(subproblems[i], subproblems[r]);
   }
+  std::cout << "Number of subproblems: " << subproblems.size() << '\n';
   Timing timeall;
   #pragma omp parallel firstprivate(puzzle, tm1)
   {
@@ -149,7 +150,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     int id = row.polyomino;
     int polymul = ++numPoly[id];
     std::pair<int, int> thispiece = {id, polymul};
-    pieceMap[thispiece] = i;
+    pieceMap[thispiece] = rowid;
   }
   // print solution
   for (auto cp : pieceMap) {
