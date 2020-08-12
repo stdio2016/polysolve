@@ -21,6 +21,7 @@ pieces = None
 lineno = 0
 cury = 0
 puzzleSetting = {"xDim", "yDim", "zDim", "oneSide"}
+pieceSetting = {"name", "type", "layout"}
 mode = ''
 stationary = []
 newdefined = []
@@ -33,16 +34,16 @@ def parseSettings(settings, names):
         if optname == "":
             raise RuntimeError("Missing setting name".format())
         elif optname not in names:
-            raise RuntimeError('Unknown setting "{}".\nValid settings are: {}'.format(optname, names))
+            raise RuntimeError("Unknown setting '{}'.\nValid settings are: {}".format(optname, names))
         elif len(opt) > 2:
-            raise RuntimeError('Multiple equal sign in setting "{}"'.format(optname))
+            raise RuntimeError("Multiple equal sign in setting '{}'".format(optname))
         elif optname in out:
-            raise RuntimeError('Repeated setting "{}"'.format(optname))
+            raise RuntimeError("Repeated setting '{}'".format(optname))
         elif len(opt) <= 1:
             if optname == "oneSide":
                 out['oneSide'] = True
             else:
-                raise RuntimeError('Setting "{}" requires a value.'.format(optname))
+                raise RuntimeError("Setting '{}' requires a value.".format(optname))
         else:
             out[optname] = opt[1]
     return out
@@ -54,12 +55,12 @@ def parseD(opts):
         puzzleDef[optname] = int(settings[optname])
         if optname == "oneSide":
             if puzzleDef[optname] not in range(2):
-                raise RuntimeError('Setting "oneSide" can be either 0 or 1')
-            puzzleDef[optname] = int(settings[1]) == 1
+                raise RuntimeError("Setting 'oneSide' can be either 0 or 1")
+            puzzleDef[optname] = int(settings[optname]) == 1
     if 'xDim' not in puzzleDef:
-        raise RuntimeError('Setting "xDim" is required')
+        raise RuntimeError("Setting 'xDim' is required")
     if 'yDim' not in puzzleDef:
-        raise RuntimeError('Setting "yDim" is required')
+        raise RuntimeError("Setting 'yDim' is required")
     if 'zDim' not in puzzleDef:
         puzzleDef['zDim'] = 1
     if 'oneSide' not in puzzleDef:
@@ -73,6 +74,42 @@ def parseD(opts):
     if puzzleDef['zDim'] > 1 and puzzleDef['oneSide']:
         raise RuntimeError('Only 2D puzzle (zDim=1) can have one sided pieces')
     return puzzleDef
+
+def parseC(opts):
+    settings = parseSettings(opts, pieceSetting)
+    piece = {
+        'defined': True,
+        'stationary': False,
+        'layout': False,
+        'coords': []
+    }
+    if 'name' not in settings or settings['name'] == "":
+        raise RuntimeError("Setting 'name' is required")
+    name = settings['name']
+    if name in pieces:
+        raise RuntimeError("Piece '{}' redefined".format(name))
+    if 'type' in settings:
+        if settings['type'] == 'M':
+            piece['stationary'] = False
+        elif settings['type'] == 'S':
+            piece['stationary'] = True
+        else:
+            raise RuntimeError("Piece type must be either 'M' (Mobile) or 'S' (Stationary)")
+    if 'layout' in settings and settings['layout'] != "":
+        coords = settings['layout'].split(',')
+        coordset = set()
+        for i in range(len(coords)):
+            coo = tuple([int(x) for x in coords[i].split(' ') if x])
+            if len(coo) != 3:
+                raise RuntimeError("Layout must be a list of x y z triplets")
+            if coo in coordset:
+                raise RuntimeError("Coord {} occured twice".format(coo))
+            coordset.add(coo)
+            coords[i] = coo
+        piece['coords'] = coords
+    else:
+        raise RuntimeError("Setting 'layout' is required and cannot be empty")
+    return name, piece
 
 try:
     while True:
@@ -98,14 +135,12 @@ try:
             pcs = [[y for y in x.split(' ') if y] for x in s.split(',')]
             if pcs[0][0] == '~L':
                 if len(stationary) > 0:
-                    raise RuntimeError("Pieces {} do not occur in layout".format(stationary))
+                    raise RuntimeError("Pieces '{}' do not occur in layout".format(stationary))
                 for nd in newdefined:
                     pieces[nd]['defined'] = True
                 mode = ''
             else:
-                print("y={} {}".format(cury, pcs))
                 for curz, row in enumerate(pcs):
-                    print(row)
                     for curx, pc in enumerate(row):
                         if pc == '.':
                             # dot represents a space, not a piece
@@ -114,11 +149,12 @@ try:
                             pieces[pc] = {
                                 'defined': False,
                                 'stationary': False,
+                                'layout': True,
                                 'coords': []
                             }
                             newdefined.append(pc)
                         elif pieces[pc]['defined']:
-                            raise RuntimeError('Piece "{}" redefined'.format(pc))
+                            raise RuntimeError("Piece '{}' redefined".format(pc))
                         if pc in stationary:
                             pieces[pc]['stationary'] = True
                             stationary.remove(pc)
@@ -132,7 +168,8 @@ try:
         elif d[0] == "C":
             if puzzleDef is None:
                 raise RuntimeError("The first puzzle directive must be D")
-            print(d)
+            name, piece = parseC(d[1:])
+            pieces[name] = piece
         elif d[0] == "L":
             if puzzleDef is None:
                 raise RuntimeError("The first puzzle directive must be D")
@@ -143,8 +180,7 @@ try:
                 stationary = {x for x in settings['stationary'].split(' ') if x}
                 for piece in pieces:
                     if piece in stationary:
-                        raise RuntimeError("Piece {} redefined".format(piece))
-            print(stationary)
+                        raise RuntimeError("Piece '{}' redefined".format(piece))
             mode = 'L'
         elif d[0] == "~D":
             if puzzleDef is None:
@@ -154,7 +190,7 @@ try:
             puzzleDef = None
             pieces = None
         else:
-            raise RuntimeError('Unknown directive type: "{}"'.format(d[0]))
+            raise RuntimeError("Unknown directive type: '{}'".format(d[0]))
     if puzzleDef:
         raise RuntimeError('Unexpected end of file')
 except (RuntimeError,ValueError) as x:
