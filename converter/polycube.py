@@ -1,5 +1,6 @@
 import argparse
 import sys
+import json
 from collections import OrderedDict
 
 arg_parser = argparse.ArgumentParser()
@@ -75,7 +76,7 @@ def parseD(opts):
         raise RuntimeError('Only 2D puzzle (zDim=1) can have one sided pieces')
     return puzzleDef
 
-def parseC(opts):
+def parseC(opts, pieces):
     settings = parseSettings(opts, pieceSetting)
     piece = {
         'defined': True,
@@ -110,6 +111,112 @@ def parseC(opts):
     else:
         raise RuntimeError("Setting 'layout' is required and cannot be empty")
     return name, piece
+
+def writeJSON(puzzleDef, pieces, fout):
+    fixes = []
+    movable = OrderedDict()
+    fout.write('{\n')
+    if puzzleDef['oneSide']:
+        fout.write('  "grid": "square",\n')
+    else:
+        fout.write('  "grid": "cube",\n')
+    fout.write('  "board": {\n    "tiles": [\n')
+    if puzzleDef['oneSide']:
+        for i in range(puzzleDef['yDim']):
+            arr = [1] * puzzleDef['xDim']
+            fout.write('      %s' % arr)
+            if i < puzzleDef['yDim']-1: fout.write(',')
+            fout.write('\n')
+    else:
+        for i in range(puzzleDef['zDim']):
+            arr = [[1] * puzzleDef['xDim'] for y in range(puzzleDef['yDim'])]
+            fout.write('      %s' % arr)
+            if i < puzzleDef['zDim']-1: fout.write(',')
+            fout.write('\n')
+    fout.write('    ]\n  },\n')
+    for name in pieces:
+        piece = pieces[name]
+        if piece['stationary']:
+            fixes.append((name, piece))
+        else:
+            x0,y0,z0 = piece['coords'][0]
+            x1,y1,z1 = piece['coords'][0]
+            for x,y,z in piece['coords']:
+                x0 = min(x0, x)
+                y0 = min(y0, y)
+                z0 = min(z0, z)
+                x1 = max(x1, x)
+                y1 = max(y1, y)
+                z1 = max(z1, z)
+            piece['range'] = (x0,y0,z0,x1,y1,z1)
+            normalized = []
+            for x,y,z in piece['coords']:
+                normalized.append((x-x0,y-y0,z-z0))
+            normalized.sort()
+            normalized = tuple(normalized)
+            if normalized in movable:
+                movable[normalized]['name'].append(name)
+            else:
+                piece['name'] = [name]
+                movable[normalized] = piece
+    fout.write('  "shapes": [\n')
+    ide = 0
+    for piece in movable.values():
+        ide += 1
+        fout.write('    {\n')
+        fout.write('      "name": %s,\n' % json.dumps(piece['name']))
+        if puzzleDef['oneSide']:
+            fout.write('      "mobility": "rotate",\n')
+        if len(piece['name']) > 1:
+            fout.write('      "amount": %d,\n' % len(piece['name']))
+        fout.write('      "morphs": [{\n')
+        x0,y0,z0,x1,y1,z1 = piece['range']
+        if piece['layout']:
+            arr = []
+            for i in range(z1-z0+1):
+                arr.append([])
+                for j in range(y1-y0+1):
+                    arr[i].append([0] * (x1-x0+1))
+            for x,y,z in piece['coords']:
+                arr[z-z0][y-y0][x-x0] = 1
+            fout.write(' '*8+'"tiles": [\n')
+            if puzzleDef['oneSide']:
+                for y in range(y1-y0+1):
+                    fout.write(' '*10 + json.dumps(arr[0][y]))
+                    if y != y1-y0: fout.write(',')
+                    fout.write('\n')
+            else:
+                for z in range(z1-z0+1):
+                    fout.write(' '*10 + json.dumps(arr[z]))
+                    if z != z1-z0: fout.write(',')
+                    fout.write('\n')
+            fout.write(' '*8+']\n')
+        else:
+            if puzzleDef['oneSide']:
+                coords = [x[0:2] for x in piece['coords']]
+            else:
+                coords = piece['coords']
+            fout.write(' '*8+'"coords": {}\n'.format(json.dumps(coords)))
+        fout.write('      }]\n')
+        fout.write('    }')
+        if ide != len(fixes) + len(movable): fout.write(',')
+        fout.write('\n')
+    for name, piece in fixes:
+        ide += 1
+        fout.write('    {\n')
+        fout.write('      "name": %s,\n' % json.dumps(name))
+        fout.write('      "mobility": "stationary",\n')
+        fout.write('      "morphs": [{\n')
+        if puzzleDef['oneSide']:
+            coords = [x[0:2] for x in piece['coords']]
+        else:
+            coords = piece['coords']
+        fout.write(' '*8+'"coords": {}\n'.format(json.dumps(coords)))
+        fout.write('      }]\n')
+        fout.write('    }')
+        if ide != len(fixes) + len(movable): fout.write(',')
+        fout.write('\n')
+    fout.write("  ]\n}\n")
 
 try:
     while True:
@@ -164,11 +271,10 @@ try:
                 raise RuntimeError("Multiple puzzle definition")
             puzzleDef = parseD(d[1:])
             pieces = OrderedDict()
-            print(puzzleDef)
         elif d[0] == "C":
             if puzzleDef is None:
                 raise RuntimeError("The first puzzle directive must be D")
-            name, piece = parseC(d[1:])
+            name, piece = parseC(d[1:], pieces)
             pieces[name] = piece
         elif d[0] == "L":
             if puzzleDef is None:
@@ -185,8 +291,7 @@ try:
         elif d[0] == "~D":
             if puzzleDef is None:
                 raise RuntimeError("Closing directive ~D occured before D directive")
-            for name in pieces:
-                print(name, pieces[name])
+            writeJSON(puzzleDef, pieces, fout)
             puzzleDef = None
             pieces = None
         else:
