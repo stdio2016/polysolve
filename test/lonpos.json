@@ -1,0 +1,32 @@
+{
+  "grid": "square",
+  "board": {
+    "tiles": [
+      [1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,0],
+      [1,1,1,1,1,1,1,1,0,0],
+      [1,1,1,1,1,1,1,0,0,0],
+      [1,1,1,1,1,1,0,0,0,0],
+      [1,1,1,1,1,0,0,0,0,0],
+      [1,1,1,1,0,0,0,0,0,0],
+      [1,1,1,0,0,0,0,0,0,0],
+      [1,1,0,0,0,0,0,0,0,0],
+      [1,0,0,0,0,0,0,0,0,0]
+    ]
+  },
+  "shapes": [
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1],[1,0]]}]},
+    {"mobility":"translate", "morphs":[{"tiles":[[1,1,1,1]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1,1],[1,0,0]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1],[1,1]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1,1],[1,1,0]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1,1,1],[1,0,0,0]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1,1],[1,0,1]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1,1],[1,0,0],[1,0,0]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1,0],[0,1,1],[0,0,1]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[0,1,0],[1,1,1],[0,1,0]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1,1,0],[0,0,1,1]]}]},
+    {"mobility":"mirror", "morphs":[{"tiles":[[1,1,1,1],[0,1,0,0]]}]}
+  ],
+  "notes": "created at 2020/7/16"
+}
