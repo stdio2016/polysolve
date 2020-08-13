@@ -60,10 +60,13 @@ Coordinate tuple is an array of 1 to 4 integers, and the format is [x, y, z, w].
 ## Examples
 
 Example puzzle files are in `test/` folder.
+* `factorial.json`: Find all permutations of 11 objects. It has 11! solutions. Warning! This will use around 3 GB of RAM.
 * `langford.json`: Compute the number of Langford pairings for N=12.
+* `lonpos.json`: Lonpos 303 puzzle, 2D version
 * `minimum.json`: Smallest valid puzzle file.
-* `p01.json`, `p10.json`, `p11.json`, `p20.json`, `p21.json`, `p30.json`, `p31.json`: Subproblems of `pento.json`, to eliminate symmetric solutions of `pento.json`.
 * `pento.json`: Fill 6x10 rectangle with pentominoes.
+* `pento2.json`: Fill 18x5 rectangle with one-sided pentominoes.
+* `pentosymm.json`: Subproblem of `pento.json` to eliminate symmetric solutions of `pento.json`.
 * `soma.json`: Soma cube
 * `tangram.json`: Tangram puzzle
 * `Y_pento_in_15x15.json`: Pack 45 Y pentominoes in 15x15 square.
