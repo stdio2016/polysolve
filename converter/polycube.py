@@ -113,7 +113,6 @@ def parseC(opts, pieces):
     return name, piece
 
 def writeJSON(puzzleDef, pieces, fout):
-    fixes = []
     movable = OrderedDict()
     fout.write('{\n')
     if puzzleDef['oneSide']:
@@ -137,7 +136,8 @@ def writeJSON(puzzleDef, pieces, fout):
     for name in pieces:
         piece = pieces[name]
         if piece['stationary']:
-            fixes.append((name, piece))
+            piece['name'] = name
+            movable[name] = piece
         else:
             x0,y0,z0 = piece['coords'][0]
             x1,y1,z1 = piece['coords'][0]
@@ -165,13 +165,13 @@ def writeJSON(puzzleDef, pieces, fout):
         ide += 1
         fout.write('    {\n')
         fout.write('      "name": %s,\n' % json.dumps(piece['name']))
-        if puzzleDef['oneSide']:
-            fout.write('      "mobility": "rotate",\n')
+        mobility = 'stationary' if piece['stationary'] else 'rotate'
+        fout.write('      "mobility": "%s",\n' % (mobility))
         if len(piece['name']) > 1:
             fout.write('      "amount": %d,\n' % len(piece['name']))
         fout.write('      "morphs": [{\n')
-        x0,y0,z0,x1,y1,z1 = piece['range']
-        if piece['layout']:
+        if piece['layout'] and not piece['stationary']:
+            x0,y0,z0,x1,y1,z1 = piece['range']
             arr = []
             for i in range(z1-z0+1):
                 arr.append([])
@@ -199,22 +199,7 @@ def writeJSON(puzzleDef, pieces, fout):
             fout.write(' '*8+'"coords": {}\n'.format(json.dumps(coords)))
         fout.write('      }]\n')
         fout.write('    }')
-        if ide != len(fixes) + len(movable): fout.write(',')
-        fout.write('\n')
-    for name, piece in fixes:
-        ide += 1
-        fout.write('    {\n')
-        fout.write('      "name": %s,\n' % json.dumps(name))
-        fout.write('      "mobility": "stationary",\n')
-        fout.write('      "morphs": [{\n')
-        if puzzleDef['oneSide']:
-            coords = [x[0:2] for x in piece['coords']]
-        else:
-            coords = piece['coords']
-        fout.write(' '*8+'"coords": {}\n'.format(json.dumps(coords)))
-        fout.write('      }]\n')
-        fout.write('    }')
-        if ide != len(fixes) + len(movable): fout.write(',')
+        if ide != len(movable): fout.write(',')
         fout.write('\n')
     fout.write("  ]\n}\n")
 

@@ -1,0 +1,9 @@
+# a polycube example
+D:xDim=4:yDim=4:zDim=1
+L:stationary=a
+a a a b
+c a b b
+c c d b
+c d d d
+~L
+~D
