@@ -74,13 +74,21 @@ Example puzzle files are in `test/` folder.
 
 ## Converter
 
-You can convert puzzle file created with [PolyForm Puzzle Solver](https://www.jaapsch.net/puzzles/polysolver.htm) by the following command:
+You can convert puzzle file created with [PolyForm Puzzle Solver](https://www.jaapsch.net/puzzles/polysolver.htm) or [Polycube Puzzle Solver](http://www.mattbusche.org/projects/polycube/).
+
+To convert PolyForm Puzzle Solver format, use the following command:
 
 ```sh
 python3 converter/polysolver.py $IN_FILE > $OUT_FILE
 ```
 
 Currently only the following grid types are supported: Square, Cube, Triangle, Hexagon, and Tan.
+
+To convert Polycube format, use the following command:
+
+```sh
+python3 converter/polycube.py -i $IN_FILE -o $OUT_FILE
+```
 
 ## Missing features
 * Place some pieces on the board before solving, to set up a puzzle problem, or to solve a puzzle partially.
