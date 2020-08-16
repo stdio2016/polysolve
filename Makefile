@@ -22,8 +22,11 @@ else
 endif
 endif
 
-CPPFLAGS += -I include -I /usr/lib/gcc/x86_64-linux-gnu/7/include
+CPPFLAGS += -I include
 CXXFLAGS += -O3 -fopenmp -g
+ifeq ($(CXX),g++)
+	CXXFLAGS += -std=c++11
+endif
 CUFLAGS += --cuda-path="$(CUDA_PATH)" --cuda-gpu-arch=sm_30 -O3 -g
 NVCCFLAGS += -Xcompiler $(FOPENMP) -O3 -lineinfo -g
 CLFLAGS += /O2 /EHsc /openmp
