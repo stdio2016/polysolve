@@ -16,6 +16,7 @@ public:
   int percent;
   int parallelLevel;
   int numThreads;
+  int saveSolution;
   
   void setDefault(void);
   bool parseCmdLine(int argc, char *argv[]);

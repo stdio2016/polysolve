@@ -258,7 +258,7 @@ void Puzzle::dlxSolveRecursive(int lv) {
   if (!col) return; //unsatisfiable
   if (root->right == root || lv == targetLevel) {
     numSolution += 1;
-    solutions.push_back(solutionStack);
+    if (saveSolution) solutions.push_back(solutionStack);
     return ;
   }
   DlxCell *ptr = col->down;

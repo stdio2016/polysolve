@@ -10,6 +10,7 @@ void CmdArgs::setDefault(void) {
   percent = false;
   parallelLevel = 0;
   numThreads = 1;
+  saveSolution = true;
 }
 
 static int mystoi(std::string str, int &out, std::string what, int minV, int maxV) {
@@ -64,6 +65,9 @@ bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
           if (!mystoi(argv[i], numThreads, "number of threads", 0, 1000))
             return false;
         }
+      }
+      else if (strcmp(argv[i], "--discard-solution") == 0) {
+        saveSolution = false;
       }
       else if (strcmp(argv[i], "--") == 0) {
         // this is not a command line option
@@ -186,4 +190,8 @@ void CmdArgs::showUsage(std::string name) {
     "A setting of 1 disables multithreading, "
     "and a setting of 0 will use all CPU cores in this computer. "
     "The default value is 1.\n");
+  std::cout << "  --discard-solution\n";
+  printHelp("Use this option to discard all solutions and just count them."
+    "By default, the program saves all solutions in memory and output a "
+    "random solution.\n");
 }

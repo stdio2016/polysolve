@@ -52,6 +52,7 @@ public:
   int numRows;
   long long attempts;
   long long dlxCounter;
+  bool saveSolution;
 
 private:
   std::vector<DlxCell *> removedRows;

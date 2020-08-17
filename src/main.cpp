@@ -37,11 +37,13 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   std::cout << "build time=" << tm1.getRunTime() << "ms"<<std::endl;
   // create subproblem by expanding 3 levels of search tree
   puzzle.targetLevel = args.parallelLevel;
+  puzzle.saveSolution = true;
   puzzle.dlxSolve();
   std::vector<std::vector<int>> subproblems = puzzle.solutions;
   std::cout << "create subproblem time=" << tm1.getRunTime() << "ms"<<std::endl;
   int numSolution = 0;
   puzzle.targetLevel = -1;  // reset search tree depth
+  puzzle.saveSolution = args.saveSolution;
   puzzle.attempts = 0;
   puzzle.solutions.clear();
   puzzle.numSolution = 0;
@@ -71,7 +73,8 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     for (int i = 0; i < subproblems.size(); i++) {
       puzzle.dlxCounter = 0;
       if (subproblems[i].size() != args.parallelLevel) {
-        puzzle.solutions.push_back(subproblems[i]);
+        if (args.saveSolution)
+          puzzle.solutions.push_back(subproblems[i]);
         numSolution += 1;
         continue;
       }
@@ -116,7 +119,7 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
     
     // pick up a random solution
     prefixSum[tid] = puzzle.solutions.size();
-    if (numSolution > 0) {
+    if (args.saveSolution && numSolution > 0) {
       #pragma omp barrier
       {}
       #pragma omp single
@@ -141,31 +144,33 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   }
   if (args.percent) std::cerr << std::string(70, ' ') << "\r";
   std::cout << "number of solutions = " << numSolution << '\n';
-  // sort pieces
-  std::map<std::pair<int, int>, int> pieceMap;
-  std::vector<int> numPoly(puzzle.polyominoes.size());
-  for (int i = 0; i < oneSolution.size(); i++) {
-    int rowid = oneSolution[i];
-    DlxRow row = puzzle.dlx.rows[rowid];
-    int id = row.polyomino;
-    int polymul = ++numPoly[id];
-    std::pair<int, int> thispiece = {id, polymul};
-    pieceMap[thispiece] = rowid;
-  }
-  // print solution
-  for (auto cp : pieceMap) {
-    auto pid = cp.first;
-    int i = cp.second;
-    DlxRow row = puzzle.dlx.rows[i];
-    std::cout << "piece " << pid.first+1 << " #" << pid.second << ":";
-    Shape sh = puzzle.polyominoes[pid.first].transforms[row.transform];
-    sh.sortCoords();
-    for (Coord coord : sh.coords) {
-      Coord pos = coord + row.position;
-      std::cout << " (" << pos.x << "," << pos.y << "," << pos.z << "," << pos.w
-        << ")";
+  if (args.saveSolution) {
+    // sort pieces
+    std::map<std::pair<int, int>, int> pieceMap;
+    std::vector<int> numPoly(puzzle.polyominoes.size());
+    for (int i = 0; i < oneSolution.size(); i++) {
+      int rowid = oneSolution[i];
+      DlxRow row = puzzle.dlx.rows[rowid];
+      int id = row.polyomino;
+      int polymul = ++numPoly[id];
+      std::pair<int, int> thispiece = {id, polymul};
+      pieceMap[thispiece] = rowid;
     }
-    std::cout << '\n';
+    // print solution
+    for (auto cp : pieceMap) {
+      auto pid = cp.first;
+      int i = cp.second;
+      DlxRow row = puzzle.dlx.rows[i];
+      std::cout << "piece " << pid.first+1 << " #" << pid.second << ":";
+      Shape sh = puzzle.polyominoes[pid.first].transforms[row.transform];
+      sh.sortCoords();
+      for (Coord coord : sh.coords) {
+        Coord pos = coord + row.position;
+        std::cout << " (" << pos.x << "," << pos.y << "," << pos.z << "," << pos.w
+          << ")";
+      }
+      std::cout << '\n';
+    }
   }
   std::cout << "solve time=" << tm1.getRunTime() << "ms"<<std::endl;
   return 0;
