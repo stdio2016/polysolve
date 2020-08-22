@@ -161,7 +161,16 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
       auto pid = cp.first;
       int i = cp.second;
       DlxRow row = puzzle.dlx.rows[i];
-      std::cout << "piece " << pid.first+1 << " #" << pid.second << ":";
+      Polyomino piece = puzzle.polyominoes[pid.first];
+      if (piece.names.empty()) {
+        std::cout << "piece " << pid.first+1 << " #" << pid.second << ":";
+      }
+      else if (pid.second <= piece.names.size()) {
+        std::cout << "piece " << piece.names[pid.second-1] << ":";
+      }
+      else {
+        std::cout << "piece " << piece.names[0] << " #" << pid.second << ":";
+      }
       Shape sh = puzzle.polyominoes[pid.first].transforms[row.transform];
       sh.sortCoords();
       for (Coord coord : sh.coords) {

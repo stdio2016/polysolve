@@ -169,4 +169,15 @@ void from_json(const json &j, Polyomino &poly) {
   for (json mor : j.at("morphs")) {
     poly.morphs.push_back(mor.get<Shape>());
   }
+  if (j.contains("name")) {
+    json names = j["name"];
+    if (names.is_string()) {
+      poly.names.push_back(names.get<std::string>());
+    }
+    else if (names.is_array()) {
+      for (json name : names) {
+        poly.names.push_back(name.get<std::string>());
+      }
+    }
+  }
 }
