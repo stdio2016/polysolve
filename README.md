@@ -1,6 +1,6 @@
 # polysolve
 
-A program to solve polyomino puzzle with multithreading. Currently it only uses CPU, but I plan to add GPU acceleration support.
+A command line program to solve polyomino puzzle with multithreading. Currently it only uses CPU, but I plan to add GPU acceleration support.
 
 ## Build
 
@@ -25,6 +25,12 @@ Compile with makefile:
 * ~~Clang with GPU: `make CXX=clang++ USE_GPU=yes`~~
 * MSVC: `make cl CLL=cl`
 * ~~NVCC: `make nvcc NVCC=nvcc CUDA_PATH=<cuda path>`~~ 
+
+## Usage
+
+```
+./polysolve [options] puzzlefile
+```
 
 ## Puzzle file
 
