@@ -1,0 +1,64 @@
+D:xDim=18:yDim=5:zDim=1:oneSide
+L
+F . .
+F F F
+. F .
+
+.  .  F2
+F2 F2 F2
+.  F2 .
+
+I I I I I
+
+. . . L
+L L L L
+
+L2 .  .  .
+L2 L2 L2 L2
+
+. . N N
+N N N .
+
+N2 N2 .  .
+.  N2 N2 N2
+
+P P .
+P P P
+
+.  P2 P2
+P2 P2 P2
+
+. T .
+. T .
+T T T
+
+U . U
+U U U
+
+V . .
+V . .
+V V V
+
+W . .
+W W .
+. W W
+
+. X .
+X X X
+. X .
+
+. . Y .
+Y Y Y Y
+
+.  Y2 .  .
+Y2 Y2 Y2 Y2
+
+. Z Z
+. Z .
+Z Z .
+
+Z2 Z2 .
+.  Z2 .
+.  Z2 Z2
+~L
+~D
