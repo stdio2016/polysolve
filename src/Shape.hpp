@@ -13,7 +13,7 @@ public:
   int morph;
   int orient;
   
-  explicit Shape(int morph=0, int orient=0): morph(morph), orient(orient) {}
+  Shape(): morph(0), orient(0) {}
   
   // normalize coords so the minimum of each dimension is 0
   void normalize(int maxTile);

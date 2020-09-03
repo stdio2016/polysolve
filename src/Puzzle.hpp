@@ -14,6 +14,7 @@
 
 class Puzzle {
 public:
+  Puzzle();
   Shape board;
   std::vector<Polyomino> polyominoes;
   GridType *grid;

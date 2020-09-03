@@ -3,7 +3,7 @@
 #include <iostream>
 #include <exception>
 
-void CmdArgs::setDefault(void) {
+CmdArgs::CmdArgs(void) {
   help = false;
   ver = false;
   info = false;
@@ -37,7 +37,6 @@ static int mystoi(std::string str, int &out, std::string what, int minV, int max
 }
 
 bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
-  this->setDefault();
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-') {
       if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {

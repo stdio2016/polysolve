@@ -3,6 +3,16 @@
 #include <iostream>
 #include <utility>
 
+Puzzle::Puzzle() {
+  grid = GridType::fromName("square");
+  targetLevel = -1;
+  numSolution = 0;
+  numRows = 0;
+  attempts = 0;
+  dlxCounter = 0;
+  saveSolution = true;
+}
+
 void Puzzle::buildDlxRows() {
   dlx.rows.clear();
   

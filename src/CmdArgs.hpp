@@ -18,7 +18,7 @@ public:
   int numThreads;
   int saveSolution;
   
-  void setDefault(void);
+  CmdArgs();
   bool parseCmdLine(int argc, char *argv[]);
   void showHelp(void);
   void showVersion(void);
