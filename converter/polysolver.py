@@ -2,11 +2,13 @@ import argparse
 import re
 import json
 import itertools
+import sys
 
 import gridtypes
 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument('file', type=str, help='PolySolver file name')
+arg_parser.add_argument('--input', '-i', type=str, help='PolySolver file name')
+arg_parser.add_argument('--output', '-o', type=str, help='output file name')
 arg_parser.add_argument('-old', action='store_true', help='use this flag if the file is created in version 1.0')
 
 args = arg_parser.parse_args()
@@ -94,24 +96,32 @@ def compact_coord(coord):
 def compact_coord2(coord):
     return coord[:dim]
 
-with open(args.file, 'r') as ff:
-    print('{')
+if args.input:
+    ff = open(args.input, 'r')
+else:
+    ff = sys.stdin
+if args.output:
+    fout = open(args.output, 'w')
+else:
+    fout = sys.stdout
+if True:
+    fout.write('{\n')
     if not args.old:
         description = ff.readline()
         if description[-1] == '\n':
             description = description[:-1]
-    print('  "description": ' + json.dumps(description) + ',')
+    fout.write('  "description": ' + json.dumps(description) + ',\n')
 
     text = ff.read()
     scanner = Tokenizer(text)
 
-    grid = scanner.next()
+    grid = scanner.next().lower()
     if grid == 'board' or grid == 'tile':
         grid = 'square'
         scanner.back()
     if not grid in gridtypes.grids:
         raise NotImplementedError('Grid type "{}" is not yet supported'.format(grid))
-    print('  "grid": ' + json.dumps(grid) + ',')
+    fout.write('  "grid": ' + json.dumps(grid) + ',\n')
     grid = gridtypes.grids[grid]
     dim = grid['dimension']
     tileN = len(grid['orbits'])
@@ -203,30 +213,30 @@ with open(args.file, 'r') as ff:
             shapes.append(shape)
         fun = scanner.next()
         
-    print('  "board": {')
-    print('    "size": %s,' % board['size'])
-    print('    "coords": %s' % json.dumps([compact_coord(c) for c in board['coords']]))
-    print('  },')
-    print('  "shapes": [')
+    fout.write('  "board": {\n')
+    fout.write('    "size": %s,\n' % board['size'])
+    fout.write('    "coords": %s\n' % json.dumps([compact_coord(c) for c in board['coords']]))
+    fout.write('  },\n')
+    fout.write('  "shapes": [\n')
     i = 0
     for sh in shapes:
         i += 1
-        print('    {')
-        print('      "mobility": "%s",' % sh['mobility'])
-        print('      "amount": %s,' % json.dumps(sh['amount']))
+        fout.write('    {\n')
+        fout.write('      "mobility": "%s",\n' % sh['mobility'])
+        fout.write('      "amount": %s,\n' % json.dumps(sh['amount']))
         if 'color' in sh:
-            print('      "color": %s,' % json.dumps(sh['color']))
-        print('      "morphs": [')
+            fout.write('      "color": %s,\n' % json.dumps(sh['color']))
+        fout.write('      "morphs": [\n')
         j = len(sh['morphs'])
         for mo in sh['morphs']:
             j -= 1
-            print('        {"coords": %s}%s' % (
+            fout.write('        {"coords": %s}%s\n' % (
                 json.dumps([compact_coord(c) for c in mo]),
                 '' if j == 0 else ','
             ))
-        print('      ]')
-        print('    }'+('' if i==len(shapes) else ','))
-    print('  ],')
+        fout.write('      ]\n')
+        fout.write('    }'+('' if i==len(shapes) else ',')+'\n')
+    fout.write('  ],\n')
 
     # build shape id mapping for place/solution
     shapeId = [0]
@@ -263,17 +273,17 @@ with open(args.file, 'r') as ff:
             pos = compact_coord(convert_coord(pos, dim, tileN, args.old))
             placement.append({'id':id, 'position':pos, 'morph':morph, 'orientation':ori})
         fun = scanner.next()
-    print('  "placement": [')
+    fout.write('  "placement": [\n')
     for i, p in enumerate(placement):
-        print('    ' + json.dumps(p) + (',' if i < len(placement)-1 else ''))
-    print('  ],')
+        fout.write('    ' + json.dumps(p) + (',' if i < len(placement)-1 else '') + '\n')
+    fout.write('  ],\n')
 
     # mode
     mode = ''
     if fun == 'mode':
         mode = scanner.next()
         fun = scanner.next()
-    print('  "mode": %s,' % (json.dumps(mode)))
+    fout.write('  "mode": %s,\n' % (json.dumps(mode)))
 
     # solution
     solutions = []
@@ -283,10 +293,10 @@ with open(args.file, 'r') as ff:
             pla[1] = compact_coord(convert_coord(pla[1], dim, tileN, args.old))
         solutions.append(sol)
         fun = scanner.next()
-    print('  "solutions": [')
+    fout.write('  "solutions": [\n')
     for i, p in enumerate(solutions):
-        print('    ' + json.dumps(p) + (',' if i < len(solutions)-1 else ''))
-    print('  ],')
+        fout.write('    ' + json.dumps(p) + (',' if i < len(solutions)-1 else '') + '\n')
+    fout.write('  ],\n')
     
     # notes
     notes = ""
@@ -299,5 +309,9 @@ with open(args.file, 'r') as ff:
             hi = (ord(notes[i*2])-1) & 15
             txt.append(chr(hi*16 + lo))
         notes = "".join(txt)
-    print('  "notes": %s' % (json.dumps(notes)))
-    print('}')
+    fout.write('  "notes": %s\n' % (json.dumps(notes)))
+    fout.write('}\n')
+if args.input:
+    ff.close()
+if args.output:
+    fout.close()

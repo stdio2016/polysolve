@@ -85,7 +85,7 @@ You can convert puzzle file created with [PolyForm Puzzle Solver](https://www.ja
 To convert PolyForm Puzzle Solver format, use the following command:
 
 ```sh
-python3 converter/polysolver.py $IN_FILE > $OUT_FILE
+python3 converter/polysolver.py -i $IN_FILE -o $OUT_FILE
 ```
 
 Currently only the following grid types are supported: Square, Cube, Triangle, Hexagon, and Tan.
