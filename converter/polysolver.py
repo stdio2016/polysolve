@@ -36,16 +36,16 @@ class Tokenizer(object):
     def back(self):
         self.prev = self.current
 
-def parse_coord(scanner, oriented=False):
+def parse_coord(scanner, oriented=False, old=False):
     x = int(scanner.next())
     y = int(scanner.next())
     nxt = scanner.next()
     z = 0
-    if nxt != ')' and nxt != ':' and nxt != '|':
+    if nxt != ')' and nxt != ':' and nxt != '|' and nxt != ';':
         z = int(nxt)
         nxt = scanner.next()
     w = 0
-    if nxt != ')' and nxt != '|':
+    if nxt != ')' and nxt != '|' and nxt != ';':
         if nxt == ':': nxt = scanner.next()
         w = int(nxt)
         nxt = scanner.next()
@@ -54,7 +54,9 @@ def parse_coord(scanner, oriented=False):
         if nxt == '|':
             ori = int(scanner.next())
             nxt = scanner.next()
-    if nxt != ')':
+    if old:
+        scanner.back()
+    elif nxt != ')':
         raise SyntaxError('Missing ) at end of coord')
     if oriented: return (x, y, z, w, ori)
     return (x, y, z, w)
@@ -78,7 +80,12 @@ def parse_solution(scanner, shapes, shapeId, which='solution'):
         ans.append(obj)
     return ans
 
-def convert_coord(coord, dim, tileN=1):
+def convert_coord(coord, dim, tileN, old):
+    if old:
+        if tileN > 1:
+            return (coord[dim],) + coord[:dim]
+        else:
+            return coord[:dim]
     return (coord[3],) + coord[:dim] if tileN > 1 else coord[:dim]
 
 def compact_coord(coord):
@@ -120,12 +127,22 @@ with open(args.file, 'r') as ff:
             if fun != '(': raise SyntaxError('Missing ( at board')
             fun = scanner.next()
             coords = []
-            while fun == '(':
-                coords.append(parse_coord(scanner))
+            if args.old:
+                scanner.back()
+                coords.append(parse_coord(scanner, old=True))
                 fun = scanner.next()
+                while fun == ';':
+                    coords.append(parse_coord(scanner, old=True))
+                    fun = scanner.next()
+            else:
+                while fun == '(':
+                    coords.append(parse_coord(scanner))
+                    fun = scanner.next()
             if fun != ')':
                 raise SyntaxError('Missing ) at end of board')
             xs,ys,zs,ws = coords[0]
+            if args.old:
+                xs,ys,zs,ws = max(0,xs-1),max(0,ys-1),max(0,zs-1),max(0,ws-1)
             board['size'] = [xs+1,ys+1,zs+1][:dim]
             cells = set(itertools.product(
                     range(xs+1), range(ys+1), range(zs+1), range(ws+1)))
@@ -134,7 +151,7 @@ with open(args.file, 'r') as ff:
                     cells.remove(xyzw)
                 else:
                     cells.add(xyzw)
-            board['coords'] = [convert_coord(c, dim, tileN) for c in cells]
+            board['coords'] = [convert_coord(c, dim, tileN, args.old) for c in cells]
             board['coords'].sort()
         elif fun == 'tile':
             shape = {}
@@ -150,11 +167,13 @@ with open(args.file, 'r') as ff:
             
             fun = scanner.next()
             max_amount = 1
-            min_amount = 0
+            min_amount = 1 if args.old else 0
             if fun != '(':
                 max_amount = int(fun)
                 fun = scanner.next()
-                if fun != '(':
+                if args.old:
+                    min_amount = max_amount
+                elif fun != '(':
                     min_amount = int(fun)
                     fun = scanner.next()
             shape['amount'] = {"max": max_amount, "min": min_amount}
@@ -162,12 +181,14 @@ with open(args.file, 'r') as ff:
                 raise SyntaxError('Missing ( at tile')
             fun = scanner.next()
             morph = [[]]
-            while fun == '(' or fun == '+':
-                if fun == '+':
+            # old version uses ; to separate orientations, new version uses +
+            sep = ';' if args.old else '+'
+            while fun == '(' or fun == sep:
+                if fun == sep:
                     morph.append([])
                     fun = scanner.next()
                 if fun == '(':
-                    morph[-1].append(convert_coord(parse_coord(scanner), dim, tileN))
+                    morph[-1].append(convert_coord(parse_coord(scanner), dim, tileN, args.old))
                     fun = scanner.next()
             if fun != ')':
                 raise SyntaxError('Missing ) at end of tile')
@@ -239,7 +260,7 @@ with open(args.file, 'r') as ff:
         placement0 = parse_solution(scanner, shapes, shapeId, which='place')
         for pla in placement0:
             id, pos, morph, ori = pla
-            pos = compact_coord(convert_coord(pos, dim, tileN))
+            pos = compact_coord(convert_coord(pos, dim, tileN, args.old))
             placement.append({'id':id, 'position':pos, 'morph':morph, 'orientation':ori})
         fun = scanner.next()
     print('  "placement": [')
@@ -259,7 +280,7 @@ with open(args.file, 'r') as ff:
     while fun == 'solution':
         sol = parse_solution(scanner, shapes, shapeId)
         for pla in sol:
-            pla[1] = compact_coord(convert_coord(pla[1], dim, tileN))
+            pla[1] = compact_coord(convert_coord(pla[1], dim, tileN, args.old))
         solutions.append(sol)
         fun = scanner.next()
     print('  "solutions": [')
