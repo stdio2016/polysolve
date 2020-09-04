@@ -6,7 +6,8 @@ static std::map<std::string, GridType*> gridTypes = {
   {"cube", new GridCube()},
   {"triangle", new GridTriangle()},
   {"hexagon", new GridHexagon()},
-  {"tan", new GridTan()}
+  {"tan", new GridTan()},
+  {"octagon", new GridOctagon()}
 };
 
 GridType *GridType::fromName(std::string name) {
@@ -87,5 +88,17 @@ Coord GridTan::rotate(Coord c, int orient) const {
     c = Coord{c.x+1, c.z, -c.y};
   }
   c.x &= 3;
+  return c;
+}
+
+// octagon
+Coord GridOctagon::rotate(Coord c, int orient) const {
+  if (orient & 4) {
+    // reflection
+    c = Coord{c.x, -c.y-c.x, c.z};
+  }
+  for (int i = 0; i < (orient&3); i++) {
+    c = Coord{c.x, c.z, -c.y-c.x};
+  }
   return c;
 }

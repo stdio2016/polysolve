@@ -79,4 +79,11 @@ public:
   Coord rotate(Coord coord, int orient) const override;
 };
 
+class GridOctagon : public GridType {
+public:
+  GridOctagon(): GridType("octagon", 2, 4, true, {0, 1}) {}
+  
+  Coord rotate(Coord coord, int orient) const override;
+};
+
 #endif

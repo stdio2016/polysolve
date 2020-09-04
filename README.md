@@ -37,7 +37,7 @@ Compile with makefile:
 Puzzle file is a JSON format file. The top level is an object with the following keys.
 
 * **description**: A string. Description of a puzzle. Optional.
-* **grid**: Grid type of the puzzle. Can be one of the following: `square`, `cube`, `triangle`, `hexagon`, and `tan`. Required.
+* **grid**: Grid type of the puzzle. Can be one of the following: `square`, `cube`, `triangle`, `hexagon`, `tan` and `octagon`. Required.
 * **board**: A [shape object](#shape-object) describing board shape. Required.
 * **shapes**: An array of puzzle pieces. Requires at least one item.
     - **name**: A string. Name of a piece. Optional.
@@ -88,7 +88,7 @@ To convert PolyForm Puzzle Solver format, use the following command:
 python3 converter/polysolver.py -i $IN_FILE -o $OUT_FILE
 ```
 
-Currently only the following grid types are supported: Square, Cube, Triangle, Hexagon, and Tan.
+Currently only the following grid types are supported: Square, Cube, Triangle, Hexagon, Tan and Octagon.
 
 To convert Polycube format, use the following command:
 
