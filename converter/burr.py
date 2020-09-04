@@ -153,7 +153,7 @@ def writeProblem(fout, gridType, colors, shapes, problem, comment):
     writeGrid(fout, board['voxel'], indent=2)
     fout.write('\n  },\n')
     if problem['maxHoles'] > -1:
-        fout.write('  "maxHoles": %d,\n', problem['maxHoles'])
+        fout.write('  "maxHoles": %d,\n' % problem['maxHoles'])
     fout.write('  "shapes": [\n')
     for i, shape in enumerate(problem['shapes']):
         voxel = shapes[shape['id']]
