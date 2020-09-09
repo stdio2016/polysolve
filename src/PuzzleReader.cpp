@@ -1,6 +1,7 @@
 #include <exception>
 #include "PuzzleReader.hpp"
 #include <string>
+#include <sstream>
 
 using json = nlohmann::json;
 
@@ -23,12 +24,44 @@ void from_json(const json &j, Puzzle &puzzle) {
     throw std::runtime_error("Puzzle must have a board.");
   }
   puzzle.board = j.at("board").get<Shape>();
+  
+  puzzle.board.sortCoords();
+  Coord wrong;
+  if (!puzzle.board.validateCoords(puzzle.grid, wrong)) {
+    std::stringstream ss;
+    ss << "Board contains invalid coord ";
+    ss << "("<<wrong.x<<','<<wrong.y<<','<<wrong.z<<','<<wrong.w<<")";
+    throw std::runtime_error(ss.str());
+  }
+  if (!puzzle.board.validateNoDup(wrong)) {
+    std::stringstream ss;
+    ss << "Board contains duplicated coord ";
+    ss << "("<<wrong.x<<','<<wrong.y<<','<<wrong.z<<','<<wrong.w<<")";
+    throw std::runtime_error(ss.str());
+  }
+  
   if (!j.contains("shapes") || !j.at("shapes").is_array() || j.at("shapes").empty()) {
     throw std::runtime_error("Puzzle must have one or more shapes.");
   }
   int i = 0;
   for (json sh : j.at("shapes")) {
     puzzle.polyominoes.push_back(sh.get<Polyomino>());
+    for (Shape &mo : puzzle.polyominoes[i].morphs) {
+      Coord wrong;
+      mo.sortCoords();
+      if (!mo.validateCoords(puzzle.grid, wrong)) {
+        std::stringstream ss;
+        ss << "Piece " << i+1 << " contains invalid coord ";
+        ss << "("<<wrong.x<<','<<wrong.y<<','<<wrong.z<<','<<wrong.w<<")";
+        throw std::runtime_error(ss.str());
+      }
+      if (!mo.validateNoDup(wrong)) {
+        std::stringstream ss;
+        ss << "Piece " << i+1 << " contains duplicated coord ";
+        ss << "("<<wrong.x<<','<<wrong.y<<','<<wrong.z<<','<<wrong.w<<")";
+        throw std::runtime_error(ss.str());
+      }
+    }
     puzzle.polyominoes[i].id = i;
     i += 1;
   }
@@ -168,6 +201,9 @@ void from_json(const json &j, Polyomino &poly) {
   }
   for (json mor : j.at("morphs")) {
     poly.morphs.push_back(mor.get<Shape>());
+  }
+  if (poly.morphs.size() == 0) {
+    throw std::runtime_error("Polyomino must contain one or more morphs.");
   }
   if (j.contains("name")) {
     json names = j["name"];

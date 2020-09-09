@@ -1,4 +1,5 @@
 #include "Shape.hpp"
+#include "GridType.hpp"
 #include <algorithm>
 
 void Shape::normalize(int maxTile) {
@@ -33,4 +34,24 @@ std::vector<Coord> Shape::getValidTranslations(int maxTile) const {
   auto new_end = std::unique(all.begin(), all.end());
   all.resize(new_end - all.begin());
   return all;
+}
+
+bool Shape::validateCoords(GridType *grid, Coord &wrong) const {
+  for (auto x : coords) {
+    if (!grid->validateCoord(x)) {
+      wrong = x;
+      return false;
+    }
+  }
+  return true;
+}
+
+bool Shape::validateNoDup(Coord &wrong) const {
+  for (int i = 1; i < coords.size(); i++) {
+    if (coords[i] == coords[i-1]) {
+      wrong = coords[i];
+      return false;
+    }
+  }
+  return true;
 }

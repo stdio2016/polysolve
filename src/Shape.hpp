@@ -7,6 +7,7 @@
 #include <vector>
 #include "Coord.hpp"
 
+class GridType;
 class Shape {
 public:
   std::vector<Coord> coords;
@@ -24,6 +25,10 @@ public:
   // get translations for polyomino
   // assume coords are sorted
   std::vector<Coord> getValidTranslations(int maxTile) const;
+  
+  bool validateCoords(GridType *grid, Coord &wrong) const;
+  
+  bool validateNoDup(Coord &wrong) const;
 };
 
 inline bool operator==(const Shape &a, const Shape &b) {

@@ -32,6 +32,8 @@ public:
   inline int rotateCount() const { return m_rotateCount; }
   inline int canReflect() const { return m_canReflect; }
   inline const std::vector<int>& orbit() const { return m_orbit; }
+  
+  bool validateCoord(Coord coord) const ;
 
 protected:
   // constructor for subclasses

@@ -17,6 +17,23 @@ GridType *GridType::fromName(std::string name) {
   return nullptr;
 }
 
+bool GridType::validateCoord(Coord c) const {
+  int ntiles = orbit().size();
+  int dim = dimension();
+  if (ntiles == 1) {
+    // format: [x, y, z, w]
+    if (dim <= 1 && c.y != 0) return false;
+    if (dim <= 2 && c.z != 0) return false;
+    if (dim <= 3 && c.w != 0) return false;
+    return true;
+  }
+  // format: [tile, x, y, z]
+  if (c.x >= ntiles || c.x < 0) return false;
+  if (dim <= 1 && c.z != 0) return false;
+  if (dim <= 2 && c.w != 0) return false;
+  return true;
+}
+
 // square
 Coord GridSquare::rotate(Coord c, int orient) const {
   if (orient & 4) {
