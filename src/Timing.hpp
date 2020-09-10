@@ -15,12 +15,7 @@ public:
   double getRunTime(bool cont=false);
 
 private:
-  // MinGW timer is inaccurate, so I have to use steady_clock instead
-#ifdef __MINGW32__
   std::chrono::steady_clock::time_point startTime;
-#else
-  std::chrono::high_resolution_clock::time_point startTime;
-#endif
 };
 
 #endif
