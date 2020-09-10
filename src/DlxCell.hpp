@@ -51,8 +51,14 @@ inline void DlxCell::setDown(DlxCell *n) {
   n->up = this;
 }
 
+// GCC produces worse code for inlined unlinkRow/relinkRow
 template <int includeSelf>
-inline void DlxCell::unlinkRow(long long &unlinkCount) {
+#if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
+__attribute((noinline))
+#else
+inline
+#endif
+void DlxCell::unlinkRow(long long &unlinkCount) {
   //printf("unlink %d\n", n->row);
   DlxCell *n = includeSelf ? this : this->right;
 
@@ -68,7 +74,12 @@ inline void DlxCell::unlinkRow(long long &unlinkCount) {
 }
 
 template <int includeSelf>
-inline void DlxCell::relinkRow() {
+#if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
+__attribute((noinline))
+#else
+inline
+#endif
+void DlxCell::relinkRow() {
   //printf("relink %d\n", n->row);
   DlxCell *n = includeSelf ? this : this->right;
 
