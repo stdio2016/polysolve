@@ -35,6 +35,11 @@ static int solveOneFile(const CmdArgs &args, std::string filename, std::istream 
   puzzle.buildDlxColumns();
   puzzle.buildDlxCells();
   std::cout << "build time=" << tm1.getRunTime() << "ms"<<std::endl;
+  if (args.reduction) {
+    puzzle.reduce();
+    std::cout << "reduce time=" << tm1.getRunTime() << "ms"<<std::endl;
+  }
+
   // create subproblem by expanding 3 levels of search tree
   puzzle.targetLevel = args.parallelLevel;
   puzzle.saveSolution = true;

@@ -17,6 +17,7 @@ public:
   int parallelLevel;
   int numThreads;
   int saveSolution;
+  int reduction;
   
   CmdArgs();
   bool parseCmdLine(int argc, char *argv[]);

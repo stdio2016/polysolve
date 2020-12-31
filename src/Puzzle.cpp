@@ -350,3 +350,42 @@ void Puzzle::leaveBranch(int removedRowCount) {
     removedRowCount -= 1;
   }*/
 }
+
+void Puzzle::reduce(void) {
+  int reducedMore = 1, reduceIter = 0;
+  while (reducedMore) {
+    reduceIter += 1;
+    long long ig = 0;
+    reducedMore = 0;
+    int remain = 0;
+    DlxRow *r = nullptr;
+    for (DlxCell &c : this->dlx.cells) {
+      if (c.left != &c-1 && c.row->polyomino >= 0) {
+        int t = c.row->polyomino;
+        c.row->polyomino = -1000;
+        DlxCell *d = &c;
+        do {
+          d->cover(ig);
+          d = d->right;
+        } while (d != &c) ;
+        DlxColumn *can = minfit();
+        bool retain = can != nullptr;
+        d = &c;
+        do {
+          d = d->left;
+          d->uncover();
+        } while (d != &c) ;
+        if (retain) {
+          c.row->polyomino = t;
+          remain++;
+        }
+        else {
+          c.unlinkRow<true>(ig);
+          reducedMore++;
+        }
+      }
+      r = c.row;
+    }
+    std::cout << "reduce " << reducedMore << " remain " << remain << " rows" << std::endl;
+  }
+}

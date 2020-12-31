@@ -47,6 +47,8 @@ public:
   int enterBranch(int row);
   // input is the return value of enterBranch
   void leaveBranch(int removedRowCount);
+  
+  void reduce();
   int targetLevel;
   int numSolution;
   std::vector<std::vector<int>> solutions;

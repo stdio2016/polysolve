@@ -11,6 +11,7 @@ CmdArgs::CmdArgs(void) {
   parallelLevel = 0;
   numThreads = 1;
   saveSolution = true;
+  reduction = 0;
 }
 
 static int mystoi(std::string str, int &out, std::string what, int minV, int maxV) {
@@ -67,6 +68,9 @@ bool CmdArgs::parseCmdLine(int argc, char *argv[]) {
       }
       else if (strcmp(argv[i], "--discard-solution") == 0) {
         saveSolution = false;
+      }
+      else if (strcmp(argv[i], "--reduction") == 0) {
+        reduction = 1;
       }
       else if (strcmp(argv[i], "--") == 0) {
         // this is not a command line option
@@ -190,7 +194,11 @@ void CmdArgs::showUsage(std::string name) {
     "and a setting of 0 will use all CPU cores in this computer. "
     "The default value is 1.\n");
   std::cout << "  --discard-solution\n";
-  printHelp("Use this option to discard all solutions and just count them."
+  printHelp("Use this option to discard all solutions and just count them. "
     "By default, the program saves all solutions in memory and output a "
     "random solution.\n");
+  std::cout << "  --reduction\n";
+  printHelp("Enable reduction pass. Will remove placements that cause "
+    " other pieces unable to place.\n"
+  );
 }
