@@ -32,6 +32,44 @@ Compile with makefile:
 ./polysolve [options] puzzlefile
 ```
 
+Options:
+* `--help` (`-h`)
+
+  Display available options
+
+* `--version` (`-v`)
+
+  Display version information
+
+* `--info` (`-i`)
+
+  Display performance measurements
+
+* `--percent`
+
+  Display running progress in percentage
+
+* `--parallel-level <value>` (`-pl`)
+
+  Set the number of pieces to place when generating subproblems. A setting
+of 0 will disable multithreading. The default value is 0.
+
+* `--num-threads <value>` (`-nt`)
+
+  Set the number of threads for multi-thread solving. A setting of 1
+disables multithreading, and a setting of 0 will use all CPU cores in
+this computer. The default value is 1.
+
+* `--discard-solution`
+
+  Use this option to discard all solutions and just count them. By default,
+the program saves all solutions in memory and output a random solution.
+
+* `--reduction`
+
+  Enable reduction pass. Will remove placements that make other pieces
+unable to place.
+
 ## Puzzle file
 
 Puzzle file is a JSON format file. The top level is an object with the following keys.

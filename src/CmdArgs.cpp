@@ -96,7 +96,7 @@ void CmdArgs::showHelp(void) {
 }
 
 void CmdArgs::showVersion(void) {
-  std::cout << "polysolve Version 0.1" << std::endl;
+  std::cout << "polysolve Version 0.2" << std::endl;
   std::cout << "Compiled with " <<
 #ifdef __NVCC__
     "NVCC " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__ << " "
@@ -178,7 +178,7 @@ void CmdArgs::showUsage(std::string name) {
   std::cout << "Options:" << '\n';
   std::cout << "  --help (-h)" << '\n';
   printHelp("Display available options\n");
-  std::cout << "  --version" << '\n';
+  std::cout << "  --version (-v)" << '\n';
   printHelp("Display version information\n");
   std::cout << "  --info (-i)" << '\n';
   printHelp("Display performance measurements\n");
@@ -198,7 +198,7 @@ void CmdArgs::showUsage(std::string name) {
     "By default, the program saves all solutions in memory and output a "
     "random solution.\n");
   std::cout << "  --reduction\n";
-  printHelp("Enable reduction pass. Will remove placements that cause "
-    " other pieces unable to place.\n"
+  printHelp("Enable reduction pass. Will remove placements that make "
+    "other pieces unable to place.\n"
   );
 }
