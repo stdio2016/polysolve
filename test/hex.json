@@ -1,0 +1,30 @@
+{
+  "description": "Hexagon test",
+  "grid": "hexagon",
+  "board": {
+    "size": [4, 3],
+    "coords": [[0, 0], [0, 1], [0, 2], [1, 1], [1, 2], [2, 1], [2, 2], [3, 1]]
+  },
+  "shapes": [
+    {
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 0},
+      "morphs": [
+        {"coords": [[0, 2], [1, 0], [1, 1], [1, 2]]}
+      ]
+    },
+    {
+      "mobility": "mirror",
+      "amount": {"max": 1, "min": 0},
+      "morphs": [
+        {"coords": [[0, 0], [1, 0], [1, 1], [2, 0]]}
+      ]
+    }
+  ],
+  "placement": [
+  ],
+  "mode": "fillall",
+  "solutions": [
+  ],
+  "notes": ""
+}

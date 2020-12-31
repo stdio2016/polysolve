@@ -1,0 +1,44 @@
+{
+  "description": "Triangle test",
+  "grid": "triangle",
+  "board": {
+    "size": [3, 5],
+    "coords": [[0, 1, 0], [0, 1, 1], [0, 1, 2], [0, 1, 3], [0, 2, 1], [0, 2, 2], [0, 2, 3], [1, 0, 3], [1, 1, 1], [1, 1, 2], [1, 1, 3], [1, 2, 2], [1, 2, 3], [1, 2, 4]]
+  },
+  "shapes": [
+    {
+      "mobility": "rotate",
+      "amount": {"max": 1, "min": 0},
+      "morphs": [
+        {"coords": [[0, 0, 0], [0, 1, 0], [1, 0, 0], [1, 1, 0]]}
+      ]
+    },
+    {
+      "mobility": "translate",
+      "amount": {"max": 1, "min": 0},
+      "morphs": [
+        {"coords": [[0, 0, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 2]]}
+      ]
+    },
+    {
+      "mobility": "mirror",
+      "amount": {"max": 1, "min": 0},
+      "morphs": [
+        {"coords": [[0, 0, 0], [0, 1, 0], [1, 0, 0]]}
+      ]
+    },
+    {
+      "mobility": "translate",
+      "amount": {"max": 1, "min": 0},
+      "morphs": [
+        {"coords": [[0, 1, 0], [1, 0, 0]]}
+      ]
+    }
+  ],
+  "placement": [
+  ],
+  "mode": "useall",
+  "solutions": [
+  ],
+  "notes": ""
+}
