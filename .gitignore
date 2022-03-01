@@ -14,3 +14,6 @@ polysolve
 
 # python cache
 __pycache__
+
+
+.vscode/*

@@ -6,12 +6,19 @@ OPENMP_PATH = .
 
 ifeq ($(OS),Windows_NT)
 	FOPENMP += /openmp
+	FOPENMP2 = -fopenmp
 	.EXE += .exe
 else
 	FOPENMP += -fopenmp
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Darwin)
+		FOPENMP2 = -Xpreprocessor -fopenmp
+	else
+		FOPENMP2 = -fopenmp
+	endif
 endif
 
-LDFLAGS += -fopenmp -L $(OPENMP_PATH)
+LDFLAGS += $(FOPENMP2) -L $(OPENMP_PATH)
 ifeq ($(USE_GPU),yes)
 ifeq ($(OS),Windows_NT)
 	LDFLAGS += -L "$(CUDA_PATH)/lib/x64"
@@ -23,9 +30,15 @@ endif
 endif
 
 CPPFLAGS += -I include
-CXXFLAGS += -O3 -fopenmp -g
+CXXFLAGS += -O3 $(FOPENMP2) -g
 ifeq ($(CXX),g++)
 	CXXFLAGS += -std=c++11
+else
+	ifeq ($(UNAME_S),Darwin)
+		CXXFLAGS += -std=c++11
+		CPPFLAGS += -I /opt/homebrew/include
+		LDFLAGS += /opt/homebrew/lib/libomp.dylib
+	endif
 endif
 CUFLAGS += --cuda-path="$(CUDA_PATH)" --cuda-gpu-arch=sm_30 -O3 -g
 NVCCFLAGS += -Xcompiler $(FOPENMP) -O3 -lineinfo -g
