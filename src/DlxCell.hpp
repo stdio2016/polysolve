@@ -63,13 +63,24 @@ void DlxCell::unlinkRow(long long &unlinkCount) {
   DlxCell *n = includeSelf ? this : this->right;
 
   int cnt = 0;
-  do {
+  DlxCell *right = n->right, *up = n->up, *down = n->down;
+  DlxColumn *col = n->column;
+  cnt += 1;
+  up->down = down;
+  down->up = up;
+  n = right;
+  while (n != this) {
+    right = n->right, up = n->up, down = n->down;
+    DlxColumn *col2 = n->column;
+    int size = col->size;
     cnt += 1;
-    n->up->down = n->down;
-    n->down->up = n->up;
-    n->column->size -= 1;
-    n = n->right;
-  } while (n != this) ;
+    up->down = down;
+    down->up = up;
+    col->size = size - 1;
+    n = right;
+    col = col2;
+  }
+  col->size -= 1;
   unlinkCount += cnt;
 }
 
@@ -83,12 +94,22 @@ void DlxCell::relinkRow() {
   //printf("relink %d\n", n->row);
   DlxCell *n = includeSelf ? this : this->right;
 
-  do {
-    n->up->down = n;
-    n->down->up = n;
-    n->column->size += 1;
-    n = n->right;
-  } while (n != this) ;
+  DlxCell *right = n->right, *up = n->up, *down = n->down;
+  DlxColumn *col = n->column;
+  up->down = n;
+  down->up = n;
+  n = right;
+  while (n != this) {
+    right = n->right, up = n->up, down = n->down;
+    DlxColumn *col2 = n->column;
+    int size = col->size;
+    up->down = n;
+    down->up = n;
+    col->size = size + 1;
+    n = right;
+    col = col2;
+  }
+  col->size += 1;
 }
 
 inline int DlxCell::cover(long long &unlinkCount) {
