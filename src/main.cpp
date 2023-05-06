@@ -205,7 +205,7 @@ int main(int argc, char *argv[]) {
     omp_set_num_threads(args.numThreads);
   }
   if (args.parallelLevel == 0 && args.numThreads != 1) {
-    std::cerr << "Warning: Multithreading is disabled when --parallel-level is 0 or not set." << '\n';
+    std::cerr << "Warning: Multithreading is not possible when --parallel-level is 0." << '\n';
     std::cerr << "Consider setting --parallel-level to 25% of piece count." << '\n';
   }
   

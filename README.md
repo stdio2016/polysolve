@@ -52,7 +52,7 @@ Options:
 * `--parallel-level <value>` (`-pl`)
 
   Set the number of pieces to place when generating subproblems. A setting
-of 0 will disable multithreading. The default value is 0.
+of 0 will disable multithreading. By default, it is set to 1.
 
 * `--num-threads <value>` (`-nt`)
 

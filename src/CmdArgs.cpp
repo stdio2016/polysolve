@@ -8,7 +8,7 @@ CmdArgs::CmdArgs(void) {
   ver = false;
   info = false;
   percent = false;
-  parallelLevel = 0;
+  parallelLevel = 1;
   numThreads = 1;
   saveSolution = true;
   reduction = 0;
@@ -187,7 +187,7 @@ void CmdArgs::showUsage(std::string name) {
   std::cout << "  --parallel-level <value> (-pl)" << '\n';
   printHelp("Set the number of pieces to place when generating subproblems. "
     "A setting of 0 will disable multithreading. "
-    "The default value is 0.\n");
+    "By default, it is set to 1.\n");
   std::cout << "  --num-threads <value> (-nt)" << '\n';
   printHelp("Set the number of threads for multi-thread solving. "
     "A setting of 1 disables multithreading, "
