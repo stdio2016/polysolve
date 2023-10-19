@@ -97,7 +97,7 @@ void CmdArgs::showHelp(void) {
 
 void CmdArgs::showVersion(void) {
   std::cout << "polysolve Version 0.2" << std::endl;
-  std::cout << "Compiled with " <<
+  std::cout << "Compiler: " <<
 #ifdef __NVCC__
     "NVCC " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__ << " "
 #endif
@@ -111,8 +111,9 @@ void CmdArgs::showVersion(void) {
 #else
     "unknown compiler";
 #endif
+  std::cout << std::endl;
 
-  std::cout << " for " <<
+  std::cout << "OS: " <<
 #ifdef _WIN32
     "Windows"
 #elif defined(__linux__)
@@ -124,7 +125,7 @@ void CmdArgs::showVersion(void) {
 #else
     "unknown"
 #endif
-  << " platform." << std::endl;
+  << std::endl;
 
 #ifdef USE_GPU
   std::cout << "GPU support: TODO" << std::endl;
