@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <cub/cub.cuh>
 #include <vector>
+#include "../Timing.hpp"
 struct BitMask128 {
   uint64_t x, y;
 };
@@ -66,7 +67,6 @@ __global__ void compute_output_size_gpu(
     }
   }
   out_count[idx] = cntnext;
-  printf("out_count[%d]=%d\n", idx, cntnext);
 }
 
 __global__ void output_next_gpu(
@@ -84,6 +84,9 @@ __global__ void output_next_gpu(
   ShapeMask unused = cur_unused[idx];
   int choose = ffs128_gpu(space);
   int to_insert = idx == 0 ? 0 : cur_outpos[idx-1];
+  if (from > 0) {
+    to_insert -= cur_outpos[from-1];
+  }
   for (int i = 0; i < n_shapes; i++) {
     if (unused >> i & 1) {
       int end = imgpos[choose * n_shapes + i + 1];
@@ -118,7 +121,7 @@ __global__ void search_range_gpu(
   if (lo == from) {
     out_pos_size[1] = 0;
   } else {
-    out_pos_size[1] = cur_outpos[lo-1] - base;
+    out_pos_size[1] = cur_outpos[lo-1];
   }
 }
 
@@ -135,15 +138,20 @@ void runGpu(std::vector<GpuStep> g, GpuTempSpace gs) {
   segStart[lv] = 0;
   segAll[lv] = end;
   outposPrev[lv] = 0;
+  long long numAns = 0;
+  int numSearch = 0;
+  int numOut = 0;
+  long long numFits = 0;
   while (lv < depth) {
     int start = segStart[lv];
     end = segAll[lv];
     uint64_t out_pos_size[2] = {0};
+    numSearch++;
     search_range_gpu<<<1,1>>>(g[lv].outpos, start, end, g[lv].bufsize, gs.out_pos_size);
     cudaMemcpy(out_pos_size, gs.out_pos_size, sizeof(uint64_t[2]), cudaMemcpyDeviceToHost);
     end = out_pos_size[0];
     uint64_t outpos = out_pos_size[1];
-    printf("lv.%d start=%d end=%d outpos=%lld\n", lv, start, end, outpos);
+    //printf("lv.%d start=%d end=%d outpos=%lld\n", lv, start, end, outpos);
     if (end <= start) {
       printf("not enough output space\n");
       return;
@@ -151,7 +159,9 @@ void runGpu(std::vector<GpuStep> g, GpuTempSpace gs) {
     segStart[lv] = end;
     uint64_t outsize = outpos - outposPrev[lv];
     outposPrev[lv] = outpos;
+    numFits += outsize;
     if (outsize > 0 && lv < depth-1) {
+      numOut++;
       output_next_gpu<<<4000,256>>>((ulonglong2 *)gs.imagelist, gs.imgpos, gs.n_shapes,
         (ulonglong2 *)g[lv].space, g[lv].unused, g[lv].outpos,
         (ulonglong2 *)g[lv+1].space, g[lv+1].unused, g[lv+1].parent,
@@ -164,18 +174,23 @@ void runGpu(std::vector<GpuStep> g, GpuTempSpace gs) {
       cub::DeviceScan::InclusiveSum(gs.tmp_sum, gs.tmp_sum_bytes, gs.counts, g[lv].outpos, end);
     } else {
       if (lv == depth-1) {
-        printf("ans=%lld\n", outsize);
+        numAns += outsize;
       }
       while (lv >= 0 && segStart[lv] == segAll[lv]) {
         outposPrev[lv] = 0;
         lv--;
       }
-      if (lv == -1) return;
+      if (lv == -1) break;
     }
   }
+  printf("ans=%lld\n", numAns);
+  printf("search = %d\n", numSearch);
+  printf("out next = %d\n", numOut);
+  printf("fits = %lld\n", numFits);
 }
 
 int main() {
+  Timing timer;
   FILE *fin = fopen("e.txt", "r");
   if (!fin) {
     printf("no file\n");
@@ -218,8 +233,9 @@ int main() {
       flatShapelist.push_back(bm);
     }
   }
+  printf("read: %fms\n", timer.getRunTime());
 
-  int bufsize = 5;
+  int bufsize = 1000000;
   GpuTempSpace gs;
   gs.n_shapes = n_shapes;
   cudaMalloc(&gs.imagelist, sizeof(BitMask128) * flatShapelist.size());
@@ -251,6 +267,9 @@ int main() {
   ShapeMask unused = (1U<<(n_shapes-1)) * 2 - 1;
   cudaMemcpy(g[0].space, &space, sizeof(BitMask128), cudaMemcpyHostToDevice);
   cudaMemcpy(g[0].unused, &unused, sizeof(ShapeMask), cudaMemcpyHostToDevice);
+  printf("cuda init: %fms\n", timer.getRunTime());
+
   runGpu(g, gs);
   printf("%s\n", cudaGetErrorString(cudaDeviceSynchronize()));
+  printf("cuda run: %fms\n", timer.getRunTime());
 }
