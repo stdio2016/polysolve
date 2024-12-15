@@ -189,9 +189,10 @@ void runGpu(std::vector<GpuStep> g, GpuTempSpace gs) {
   printf("fits = %lld\n", numFits);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   Timing timer;
-  FILE *fin = fopen("e.txt", "r");
+  if (argc < 2) return 1;
+  FILE *fin = fopen(argv[1], "r");
   if (!fin) {
     printf("no file\n");
     return 1;
