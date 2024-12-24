@@ -125,6 +125,42 @@ __global__ void search_range_gpu(
   }
 }
 
+__global__ void search_range_gpu2(
+  uint64_t *cur_outpos, int from, int to, int buf_size,
+  uint64_t out_pos_size[2]
+) {
+  uint64_t base = from == 0 ? 0 : cur_outpos[from-1];
+  int logn = 32 - __clz(to - from - 1);
+  int tid = threadIdx.x;
+  int lo = from;
+  int hi = to;
+  for (int lv = 0; lv < logn; lv += 5) {
+    int diff = hi - lo;
+    int step = diff >> 5;
+    int rem = diff & 31;
+    int mid = lo + step * tid + ((rem * tid) >> 5);
+    int mask = __ballot_sync(0xFFFFFFFFU, cur_outpos[mid] - base <= buf_size);
+    int pos = __popc(mask);
+    int tmp_hi = __shfl_sync(0xFFFFFFFFU, mid, pos);
+    int tmp_lo = __shfl_sync(0xFFFFFFFFU, mid, pos-1);
+    if (pos < 32) {
+      hi = tmp_hi;
+    }
+    if (pos > 0) {
+      lo = tmp_lo;
+    }
+  }
+  if (tid == 0) {
+    out_pos_size[0] = lo+1;
+    if (cur_outpos[from] - base > buf_size) {
+      out_pos_size[0] = 0;
+      out_pos_size[1] = 0;
+    } else {
+      out_pos_size[1] = cur_outpos[lo];
+    }
+  }
+}
+
 void runGpu(std::vector<GpuStep> g, GpuTempSpace gs) {
   int lv = 0;
   int end = 1;
@@ -147,7 +183,7 @@ void runGpu(std::vector<GpuStep> g, GpuTempSpace gs) {
     end = segAll[lv];
     uint64_t out_pos_size[2] = {0};
     numSearch++;
-    search_range_gpu<<<1,1>>>(g[lv].outpos, start, end, g[lv].bufsize, gs.out_pos_size);
+    search_range_gpu2<<<1,32>>>(g[lv].outpos, start, end, g[lv].bufsize, gs.out_pos_size);
     cudaMemcpy(out_pos_size, gs.out_pos_size, sizeof(uint64_t[2]), cudaMemcpyDeviceToHost);
     end = out_pos_size[0];
     uint64_t outpos = out_pos_size[1];
